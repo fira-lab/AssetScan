@@ -1,0 +1,33 @@
+.navbar {
+  background-color: #333;
+  padding: 10px;
+}
+
+.navbar ul {
+  list-style-type: none;
+  display: flex;
+  gap: 20px;
+}
+
+.navbar li {
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.navbar li:hover {
+  transform: scale(1.1);
+}
+
+.navbar li.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.language-preference {
+  margin-top: 10px;
+}
+
+.language-preference select {
+  padding: 5px;
+}

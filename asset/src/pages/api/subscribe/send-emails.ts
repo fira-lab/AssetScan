@@ -1,0 +1,139 @@
+import type { NextApiRequest, NextApiResponse } from "next";
+import nodemailer from "nodemailer";
+
+const host = process.env.EMAIL_HOST;
+const pass = process.env.EMAIL_PASS;
+const user = process.env.EMAIL_USER;
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method !== "POST") return res.status(405).end();
+
+  const { emails, subject, message, link } = req.body;
+
+  if (!emails || !Array.isArray(emails) || emails.length === 0) {
+    return res.status(400).json({ error: "No emails provided" });
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: host,
+    port: 587,
+    secure: false,
+    auth: {
+      user: user,
+      pass: pass,
+    },
+  });
+
+  const htmlTemplate = `
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>${subject}</title>
+      <style>
+        body {
+          background-color: #212122;
+          padding: 30px;
+          font-family: "Roboto", sans-serif;
+          color: #fff;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background-color: #16213e;
+          padding: 20px;
+          border-radius: 3px;
+          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .logo {
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        .logo img {
+          width: auto;
+          height: auto;
+          max-width: 300px;
+        }
+        h1 {
+          font-size: 28px;
+          text-align: center;
+          color: #fff;
+          padding: 15px;
+          margin-bottom: 30px;
+          font-weight: bold;
+          letter-spacing: 1.5px;
+        }
+        h1 span {
+          background: rgb(16, 14, 14);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+        p {
+          font-size: 18px;
+          line-height: 1.6;
+          color: #a8dadc;
+        }
+        a.btn {
+          display: inline-block;
+          margin-top: 20px;
+          padding: 10px 20px;
+          color: #fff;
+          background-color:rgb(69, 233, 118);
+          border-radius: 3px;
+          text-decoration: none;
+        }
+        .footer {
+          margin-top: 30px;
+          text-align: center;
+          font-size: 14px;
+          color: #457b9d;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="logo">
+          <img
+            src="https://res.cloudinary.com/dgbopjzbu/image/upload/v1749780489/output-onlinepngtools_pcklfn.png"
+            alt="G-OMM Logo"
+          />
+        </div>
+        <h1><span>God is Good!</span> </h1>
+        <p>Dear Beloved,</p>
+        <p>${message}</p>
+        ${link ? `<p><a href="${link}" class="btn">Visit Website</a></p>` : ""}
+        <div class="footer">
+          <p>In His Service,</p>
+          <p><strong>Global Onesmos Missionary Movement</strong></p>
+          <p>Spreading God's Love Worldwide</p>
+        </div>
+        <p><em>P.S. God is Good – Let’s share His light together!</em></p>
+      </div>
+    </body>
+  </html>
+  `;
+
+  try {
+    await transporter.verify();
+
+    await Promise.all(
+      emails.map((email) =>
+        transporter.sendMail({
+          from: '"Global Onesimos Missionary Movement" <info@g-omm.com>',
+          to: email,
+          subject,
+          html: htmlTemplate,
+        })
+      )
+    );
+
+    res.status(200).json({ message: "Emails sent successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to send emails" });
+  }
+}
