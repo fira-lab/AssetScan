@@ -53,7 +53,7 @@ import holy from "./Images/holy.png";
 
 // Component Imports (ensure paths are correct)
 import Footer from "./Footer/page";
-import Ai from "./Ai/pages";
+
 import Loader from "./Loader/page";
 import { useLanguageStore } from "./LanguageStore/languageStore";
 import Link from "next/link";
@@ -851,8 +851,7 @@ export default function HomePage() {
           >
             {/* Implement your language selector here using Select components if needed */}
           </Box>
-          <Ai /> {/* Assuming Ai component is correctly placed */}
-          {/* Ministry Section - Original Structure */}
+             {/* Ministry Section - Original Structure */}
           <Box
             py={4} // Original Padding
             px={8}
