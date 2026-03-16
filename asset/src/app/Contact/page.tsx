@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useColorMode } from "@/components/ui/color-mode";
 
 import Footer from "../Footer/page";
-import Ai from "../Ai/pages";
+
 import {
   AlertCircle,
   X,
@@ -367,7 +367,7 @@ export default function Contact() {
           font-family: "Inter", sans-serif;
         }
       `}</style>
-      <Ai />
+      
       <div className="container mx-auto px-4 py-16 sm:py-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
