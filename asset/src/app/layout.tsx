@@ -20,8 +20,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "g-omm global onesmos missionary movement",
-  description: "A powerful admin dashboard built with Next.js and Clerk",
+  title: "Asset Scan Ai",
+  description: "Checking Assets ownership",
 };
 
 export default function RootLayout({

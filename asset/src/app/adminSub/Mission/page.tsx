@@ -2,17 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Button } from "../../../components/ui/button";
-import { Input } from "../../../components/ui/input";
-import { Textarea } from "../../../components/ui/textarea";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../../components/ui/card";
+
+
 import { Pencil, Trash2, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import { Fade, useToast } from "@chakra-ui/react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Mission {
   _id: string;
