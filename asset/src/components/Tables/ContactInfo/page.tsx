@@ -412,7 +412,7 @@ export default function ContactInfo() {
             `}</style>
             <div className="mb-5.5 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-body-2xlg font-bold text-dark dark:text-white dark:bg-gray-650">
-                Contact Info
+                Owners' Info
               </h2>
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                 <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
