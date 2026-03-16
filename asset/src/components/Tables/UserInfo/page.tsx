@@ -267,7 +267,7 @@ export default function UserInfo() {
       return;
     }
     try {
-      const response = await fetch(`/api/channel/users?id=${deleteUserId}`, {
+      const response = await fetch(`/api/users/users?id=${deleteUserId}`, {
         method: "DELETE",
       });
 
@@ -408,7 +408,7 @@ export default function UserInfo() {
             `}</style>
             <div className="mb-6 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-lg font-bold text-dark dark:text-white md:text-xl">
-                Souls Info
+                Asset Info
               </h2>
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                 <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
@@ -449,7 +449,7 @@ export default function UserInfo() {
                           className="space-y-4 p-4"
                         >
                           <Input
-                            placeholder="Name *"
+                            placeholder="Asset Type *"
                             value={newUser.name}
                             onChange={(e) =>
                               setNewUser({ ...newUser, name: e.target.value })
@@ -458,7 +458,7 @@ export default function UserInfo() {
                             required
                           />
                           <Input
-                            placeholder="Age *"
+                            placeholder="Serial No *"
                             type="number"
                             min="0"
                             max="120"
@@ -479,7 +479,7 @@ export default function UserInfo() {
                             required
                           />
                           <Input
-                            placeholder="Address *"
+                            placeholder="Department *"
                             value={newUser.address}
                             onChange={(e) =>
                               setNewUser({
@@ -503,6 +503,9 @@ export default function UserInfo() {
                             <SelectContent>
                               <SelectItem value="Male">Male</SelectItem>
                               <SelectItem value="Female">Female</SelectItem>
+                               <SelectItem value="Registered">Registered</SelectItem>
+                              <SelectItem value="Borrowed">Borrowed</SelectItem>
+                              <SelectItem value="Stolen">Stolen</SelectItem>
                               <SelectItem value="Other">Other</SelectItem>
                             </SelectContent>
                           </Select>
@@ -634,9 +637,9 @@ export default function UserInfo() {
                   <TableHeader>
                     <TableRow className="border-none bg-gray-150 dark:bg-gray-60 [&>th]:px-4 [&>th]:py-3 [&>th]:text-center [&>th]:font-medium [&>th]:uppercase [&>th]:text-dark [&>th]:dark:text-white">
                       <TableHead className="col-name !text-left">
-                        Name
+                        Asset Type
                       </TableHead>
-                      <TableHead className="col-age">Age</TableHead>
+                      <TableHead className="col-age">Serial No</TableHead>
                       <TableHead className="col-phone">Phone</TableHead>
                       <TableHead className="col-address hidden md:table-cell">
                         Address

@@ -21,7 +21,7 @@ import { Tooltip } from "@chakra-ui/react";
 
 import { useColorMode } from "@/components/ui/color-mode";
 import Footer from "../Footer/page";
-import Ai from "../Ai/pages";
+
 import { useState, useEffect, useRef } from "react";
 import Slider from "react-slick";
 import {
@@ -193,7 +193,7 @@ const RecentMissions = () => {
         color={colorMode === "light" ? "black" : "white"}
         p={8}
       >
-        <Ai />
+      
         <Heading as="h2" size="xl" textAlign="center" mb={4}>
           Recent Missions
         </Heading>

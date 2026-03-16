@@ -6,7 +6,7 @@ const Page = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-blue-950">
       <div className="g-omm-loader" />
       <h2 className="loader-text text-2xl font-semibold text-blue-300 mt-4">
-        G-OMM
+        Asset Verifier
       </h2>
       <p className="text-blue-400 mt-2">Initializing...</p>
       <style jsx>{`

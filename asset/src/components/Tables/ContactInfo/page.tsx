@@ -210,7 +210,7 @@ export default function ContactInfo() {
 
     try {
       const response = await fetch(`/api/contact/contact?id=${editUser._id}`, {
-        method: "PUT",
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
       });
@@ -480,7 +480,7 @@ export default function ContactInfo() {
                             className="h-10"
                           />
                           <Input
-                            placeholder="Location"
+                            placeholder="Department"
                             value={newUser.location}
                             onChange={(e) =>
                               setNewUser({
@@ -491,7 +491,7 @@ export default function ContactInfo() {
                             className="h-10"
                           />
                           <Input
-                            placeholder="Message *"
+                            placeholder="Asset Info *"
                             value={newUser.message}
                             onChange={(e) =>
                               setNewUser({
@@ -511,9 +511,14 @@ export default function ContactInfo() {
                             <SelectTrigger className="h-10">
                               <SelectValue placeholder="Select subscribe status" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="bg">
                               <SelectItem value="Active">Active</SelectItem>
                               <SelectItem value="Inactive">Inactive</SelectItem>
+                              <SelectItem value="admin">Admin</SelectItem>
+                              <SelectItem value="gateKeeper">GateKeeper</SelectItem>
+                              <SelectItem value="owner">Owner</SelectItem> 
+                              
+                              
                             </SelectContent>
                           </Select>
                           <DialogFooter>
@@ -552,10 +557,10 @@ export default function ContactInfo() {
                     <TableHead className="col-email">Email</TableHead>
                     <TableHead className="col-phone">Phone</TableHead>
                     <TableHead className="col-location hidden sm:table-cell">
-                      Location
+                      Department
                     </TableHead>
                     <TableHead className="col-message hidden sm:table-cell">
-                      Message
+                      Asset Info
                     </TableHead>
                     <TableHead className="col-subscribe">Subscribe</TableHead>
                     <TableHead className="col-actions">Actions</TableHead>
@@ -741,7 +746,7 @@ export default function ContactInfo() {
                           className="h-10"
                         />
                         <Input
-                          placeholder="Location"
+                          placeholder="Department"
                           value={editUser.location}
                           onChange={(e) =>
                             editUser &&
@@ -753,7 +758,7 @@ export default function ContactInfo() {
                           className="h-10"
                         />
                         <Input
-                          placeholder="Message *"
+                          placeholder="Asset Info *"
                           value={editUser.message}
                           onChange={(e) =>
                             editUser &&
