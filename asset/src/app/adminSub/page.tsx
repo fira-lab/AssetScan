@@ -11,6 +11,7 @@ import DonateUsers from "./Donate/page";
 import UserInfo from "@/components/Tables/UserInfo/page";
 import ContactInfo from "@/components/Tables/ContactInfo/page";
 import { useColorMode } from "@/components/ui/color-mode";
+import QRCodeGenerator from "@/components/Tables/qr_code_generator/page";
 
 type PropsType = {
   searchParams: Promise<{
@@ -94,6 +95,18 @@ export default function Home({ searchParams }: PropsType) {
             </CardHeader>
             <CardContent>
               <UserInfo />
+            </CardContent>
+          </Card>
+          <Card className="sm:col-span-2 lg:col-span-3 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-transparent group-hover:from-purple-500/20 transition-all duration-300"></div>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3 text-lg font-semibold text-purple-600 dark:text-purple-300">
+                <span className="text-2xl animate-pulse">🧑‍💻</span> User
+              Generate Qr Code
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <QRCodeGenerator />
             </CardContent>
           </Card>
 

@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IUser extends Document {
   name: string;
-  age: number;
+  email: string;
   phone: string;
   gender: string;
   status: string;
@@ -11,16 +11,15 @@ export interface IUser extends Document {
 
 const userSchema: Schema = new Schema({
   name: { type: String, required: true },
-  age: {
-    type: Number,
-    required: false,
-    min: [0, "Age cannot be negative"],
-    max: [120, "Age cannot exceed 120"],
+  email: {
+    type: String,
+    required: true,
+   
   },
   status: {
     type: String,
     required: true,
-    enum: ["New Soul", "Repent", "Hope"],
+    enum: ["Owner", "Borrower", "Admin","Gate Keeper"],
   },
   phone: { type: String, required: true },
   gender: { type: String, required: true },

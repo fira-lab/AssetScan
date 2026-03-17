@@ -41,7 +41,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 interface User {
   _id: string;
   name: string;
-  age: number | null;
+  email: string;
   phone: string;
   address: string;
   gender: "Male" | "Female" | "Other" | null;
@@ -50,7 +50,7 @@ interface User {
 
 interface UserFormData {
   name: string;
-  age: string;
+  email: string;
   phone: string;
   address: string;
   gender: "Male" | "Female" | "Other" | "";
@@ -74,7 +74,7 @@ export default function UserInfo() {
   const [editUser, setEditUser] = useState<EditUserFormData | null>(null);
   const [newUser, setNewUser] = useState<UserFormData>({
     name: "",
-    age: "",
+    email: "",
     phone: "",
     address: "",
     gender: "",
@@ -111,7 +111,7 @@ export default function UserInfo() {
   const prepareApiData = (formData: UserFormData | EditUserFormData) => {
     return {
       name: formData.name,
-      age: formData.age === "" ? null : Number(formData.age),
+      email: formData.email === "" ? null : Number(formData.email),
       phone: formData.phone,
       address: formData.address,
       gender: formData.gender === "" ? null : formData.gender,
@@ -122,7 +122,7 @@ export default function UserInfo() {
   const addUser = async () => {
     if (
       !newUser.name ||
-      !newUser.age ||
+      !newUser.email ||
       !newUser.phone ||
       !newUser.address ||
       !newUser.gender ||
@@ -162,7 +162,7 @@ export default function UserInfo() {
       await fetchUsers();
       setNewUser({
         name: "",
-        age: "",
+        email: "",
         phone: "",
         address: "",
         gender: "",
@@ -199,7 +199,7 @@ export default function UserInfo() {
 
     if (
       !editUser.name ||
-      !editUser.age ||
+      !editUser.email ||
       !editUser.phone ||
       !editUser.address ||
       !editUser.gender ||
@@ -329,7 +329,7 @@ export default function UserInfo() {
     return {
       _id: user._id,
       name: user.name || "",
-      age: user.age !== null ? String(user.age) : "",
+      email: user.email !== null ? String(user.email) : "",
       phone: user.phone || "",
       address: user.address || "",
       gender: user.gender || "",
@@ -462,9 +462,9 @@ export default function UserInfo() {
                             type="number"
                             min="0"
                             max="120"
-                            value={newUser.age}
+                            value={newUser.email}
                             onChange={(e) =>
-                              setNewUser({ ...newUser, age: e.target.value })
+                              setNewUser({ ...newUser, email: e.target.value })
                             }
                             className="h-10"
                             required
@@ -574,9 +574,9 @@ export default function UserInfo() {
                       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-600 dark:text-gray-300">
                         <p>
                           <strong className="font-medium text-gray-800 dark:text-gray-100">
-                            Age:
+                            Serial Number:
                           </strong>{" "}
-                          {user.age ?? "N/A"}
+                          {user.email ?? "N/A"}
                         </p>
                         <p>
                           <strong className="font-medium text-gray-800 dark:text-gray-100">
@@ -662,7 +662,7 @@ export default function UserInfo() {
                             {user.name}
                           </TableCell>
                           <TableCell className="col-age">
-                            {user.age ?? "N/A"}
+                            {user.email ?? "N/A"}
                           </TableCell>
                           <TableCell className="col-phone">
                             {user.phone}
@@ -816,10 +816,10 @@ export default function UserInfo() {
                           type="number"
                           min="0"
                           max="120"
-                          value={editUser.age}
+                          value={editUser.email}
                           onChange={(e) =>
                             editUser &&
-                            setEditUser({ ...editUser, age: e.target.value })
+                            setEditUser({ ...editUser, email: e.target.value })
                           }
                           className="h-10"
                           required

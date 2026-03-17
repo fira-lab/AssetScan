@@ -39,6 +39,7 @@ export default async function handler(
           location: body.location,
           phone: body.phone,
           message: body.message,
+          serial: body.serial,
           subscribe: body.subscribe,
         });
         await newContact.save();
@@ -54,7 +55,7 @@ export default async function handler(
     // PUT: Update an existing contact
     case "PUT":
       try {
-        const { id, name, email, location, message, phone, subscribe } = body;
+        const { id, name, email, location, message,serial, phone, subscribe } = body;
         const updatedContact = await Contact.findByIdAndUpdate(
           id,
           {
@@ -62,6 +63,7 @@ export default async function handler(
             email,
             location,
             message,
+            serial,
             phone,
             subscribe,
           },

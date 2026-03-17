@@ -31,8 +31,8 @@ export default async function handler(
     // POST: Create a new user
     case "POST":
       try {
-        const { name, age, phone, gender, status, address } = body;
-        const newUser = new User({ name, age, phone, gender, status, address });
+        const { name, email, phone, gender, status, address } = body;
+        const newUser = new User({ name, email, phone, gender, status, address });
         await newUser.save();
         res.status(200).json(newUser);
       } catch (error) {
@@ -44,10 +44,10 @@ export default async function handler(
     // PUT: Update an existing user
     case "PUT":
       try {
-        const { id, name, age, phone, gender, status, address } = body;
+        const { id, name, email, phone, gender, status, address } = body;
         const updatedUser = await User.findByIdAndUpdate(
           id,
-          { name, age, phone, gender, status, address },
+          { name, email, phone, gender, status, address },
           { new: true, runValidators: true }
         );
         if (!updatedUser) {

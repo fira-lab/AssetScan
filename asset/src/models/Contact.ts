@@ -6,6 +6,7 @@ export interface ContactType extends Document {
   phone: string; // Changed to string to match schema
   location: string;
   message: string;
+  serial: string;
   subscribe: boolean;
   created_at: Date;
   updated_at: Date;
@@ -14,6 +15,7 @@ export interface ContactType extends Document {
 const ContactSchema: Schema = new Schema({
   name: String,
   email: String,
+  serial: {type: String, required: true},
   phone: String,
   location: String,
   message: String,
