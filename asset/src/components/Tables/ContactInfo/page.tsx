@@ -381,7 +381,7 @@ export default function ContactInfo() {
                     <TableHead className="col-phone">Phone</TableHead>
                     <TableHead className="col-location hidden sm:table-cell">Department</TableHead>
                     <TableHead className="col-message hidden sm:table-cell">Asset Info</TableHead>
-                    <TableHead className="col-subscribe">Subscribe</TableHead>
+                    <TableHead className="col-subscribe">Register As</TableHead>
                     <TableHead className="col-actions">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
