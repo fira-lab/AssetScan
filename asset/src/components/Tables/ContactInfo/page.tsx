@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, ChangeEvent } from "react";
+import Image from "next/image";
 import { QRCodeCanvas } from "qrcode.react";
+import { formatDistanceToNow, parseISO } from "date-fns";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import {
@@ -28,489 +30,517 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "../../ui/pagination";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../ui/select";
 import { useToast } from "@chakra-ui/react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import { Card, CardContent } from "../../ui/card";
+import { uploadImage } from "@/app/actions/Image";
 
-// --- Define User Interfaces ---
-interface User {
+// ────────────────────────────────────────────────
+// Interfaces
+// ────────────────────────────────────────────────
+interface ContactUser {
   _id: string;
   name: string;
+  email: string;           // AMU_ID / owner identifier
+  serial?: string;
+  phone?: string;
+  location?: string;
+  message: string;         // asset description
+  imageUrl?: string;
+}
+
+interface HistoryEntry {
+  timestamp: string;       // ISO string
+  action: string;
+  status: string;
+  performedBy: string;
+  notes?: string;
+}
+
+interface UserStatus {
+  email: any;
+  _id: string;
+  status: string;
+  history: HistoryEntry[];
+  // you can add lastEntered / lastExited if backend computes them
+}
+
+interface ExtendedUser extends ContactUser {
+  statusData?: UserStatus;
+}
+
+interface FormData {
+  name: string;
   email: string;
-  serial: string; // Added Serial Number
+  serial: string;
   phone: string;
   location: string;
   message: string;
-  subscribe: boolean;
 }
 
-interface UserFormData {
-  name: string;
-  email: string;
-  serial: string; // Added Serial Number
-  phone: string;
-  location: string;
-  message: string;
-  subscribe: "Active" | "Inactive" | "Pending" | "admin" | "gateKeeper" | "owner" | "";
-}
-
-interface EditUserFormData extends UserFormData {
+interface EditFormData extends FormData {
   _id: string;
+  imageUrl?: string;
 }
-// ---------------------------
 
 export default function ContactInfo() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<ExtendedUser[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<ExtendedUser[]>([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  
-  // --- QR Code States ---
   const [isQrOpen, setIsQrOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [qrCodeData, setQrCodeData] = useState<string | null>(null);
-  const [selectedItemName, setSelectedItemName] = useState<string>("");
-
+  const [selectedNameForQr, setSelectedNameForQr] = useState("");
+  const [selectedUserForHistory, setSelectedUserForHistory] = useState<ExtendedUser | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
-  const [editUser, setEditUser] = useState<EditUserFormData | null>(null);
-  const [newUser, setNewUser] = useState<UserFormData>({
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<EditFormData | null>(null);
+  const [newForm, setNewForm] = useState<FormData>({
     name: "",
     email: "",
-    serial: "", // Added Initial State
+    serial: "",
     phone: "",
     location: "",
     message: "",
-    subscribe: "",
   });
+
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+
   const toast = useToast();
-  const usersPerPage = 10;
+  const pageSize = 10;
+
+  // ────────────────────────────────────────────────
+  // Load & merge data from BOTH endpoints
+  // ────────────────────────────────────────────────
+  const fetchAndMerge = async () => {
+  try {
+    const profileRes = await fetch("/api/contact/contact");
+    if (!profileRes.ok) throw new Error("profile fetch failed");
+    const profiles: ContactUser[] = await profileRes.json();
+
+    const statusRes = await fetch("/api/users/users");
+    if (!statusRes.ok) throw new Error("status fetch failed");
+    const statusDocs: UserStatus[] = await statusRes.json();
+
+    // ─── Use email as key ────────────────────────────────
+    const statusByEmail = new Map<string, UserStatus>();
+    statusDocs.forEach((doc) => {
+      const key = doc.email?.toLowerCase()?.trim();
+      if (key) statusByEmail.set(key, doc);
+    });
+
+    const merged = profiles.map((p) => {
+      const emailKey = p.email?.toLowerCase()?.trim();
+      return {
+        ...p,
+        statusData: emailKey ? statusByEmail.get(emailKey) : undefined,
+      };
+    });
+
+    console.log("Merged count:", merged.length);
+    console.log("With status data:", merged.filter(m => m.statusData).length);
+
+    setUsers(merged);
+    setFilteredUsers(merged);
+  } catch (err) {
+    console.error(err);
+    toast({ title: "Data load failed", status: "error" });
+  }
+};
 
   useEffect(() => {
-    fetchUsers();
+    fetchAndMerge();
   }, []);
 
-  const fetchUsers = async () => {
-    try {
-      const response = await fetch("/api/contact/contact");
-      if (!response.ok) {
-        throw new Error(`Failed to fetch users: ${response.statusText}`);
-      }
-      const data: User[] = await response.json();
-      setUsers(data);
-      setFilteredUsers(data);
-    } catch (error) {
-      console.error("Fetch users error:", error);
-      toast({
-        title: "Failed to fetch users!",
-        description: error instanceof Error ? error.message : String(error),
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    }
+  const refresh = () => fetchAndMerge();
+
+  // ────────────────────────────────────────────────
+  // Status & movement display helpers
+  // ────────────────────────────────────────────────
+  const getDisplayedStatus = (user: ExtendedUser) => {
+    const st = user.statusData?.status;
+    return st || "Unknown";
   };
 
-  const addUser = async () => {
-    if (!newUser.name || !newUser.email || !newUser.message) {
-      toast({
-        title: "Missing Fields",
-        description: "Please fill in all required fields (Name, Email, Message).",
-        status: "warning",
-        duration: 5000,
-        isClosable: true,
-      });
+  const getLastMovementText = (user: ExtendedUser) => {
+    const hist = user.statusData?.history;
+    if (!hist?.length) return "No record";
+
+    const latest = hist[hist.length - 1];
+    const when = formatDistanceToNow(parseISO(latest.timestamp), { addSuffix: true });
+
+    const act = latest.action.toLowerCase();
+    if (act.includes("enter") || act.includes("entering")) return `Entered ${when}`;
+    if (act.includes("exit") || act.includes("exiting"))  return `Exited ${when}`;
+    return `${latest.action} ${when}`;
+  };
+
+  // ────────────────────────────────────────────────
+  // CRUD – only touches /api/contact/contact
+  // ────────────────────────────────────────────────
+  const handleAdd = async () => {
+    if (!newForm.name || !newForm.email || !newForm.message) {
+      toast({ title: "Required fields missing", status: "warning" });
       return;
     }
 
-    const userData = {
-      name: newUser.name,
-      email: newUser.email,
-      serial: newUser.serial, // Added serial payload
-      phone: newUser.phone,
-      location: newUser.location,
-      message: newUser.message,
-      subscribe: newUser.subscribe === "Active",
-    };
-
+    setUploading(true);
     try {
-      const response = await fetch("/api/contact/contact", {
+      let imgUrl = "";
+      if (imageFile) {
+        const fd = new FormData();
+        fd.append("image", imageFile);
+        const up = await uploadImage(fd);
+        if (up.success && up.url) imgUrl = up.url;
+      }
+
+      const res = await fetch("/api/contact/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
+        body: JSON.stringify({ ...newForm, imageUrl: imgUrl }),
       });
 
-      if (!response.ok) throw new Error("Failed to add user");
-
-      await fetchUsers();
-      setNewUser({ name: "", email: "", serial: "", phone: "", location: "", message: "", subscribe: "" });
+      if (!res.ok) throw new Error("Add failed");
+      await refresh();
       setIsAddOpen(false);
-      toast({ title: "User added successfully", status: "success", duration: 5000 });
-    } catch (error) {
-      toast({ title: "Failed to add user", status: "error", duration: 5000 });
+      setNewForm({ name: "", email: "", serial: "", phone: "", location: "", message: "" });
+      setImageFile(null);
+      toast({ title: "Added successfully", status: "success" });
+    } catch (err) {
+      toast({ title: "Add failed", status: "error" });
+    } finally {
+      setUploading(false);
     }
   };
 
-  const updateUser = async () => {
-    if (!editUser) return;
-    if (!editUser.name || !editUser.email || !editUser.message) {
-      toast({ title: "Missing Fields", status: "warning", duration: 5000 });
-      return;
-    }
-
-    const userData = {
-      name: editUser.name,
-      email: editUser.email,
-      serial: editUser.serial, // Added serial payload
-      phone: editUser.phone,
-      location: editUser.location,
-      message: editUser.message,
-      subscribe: editUser.subscribe === "Active",
-    };
-
+  const handleUpdate = async () => {
+    if (!editForm) return;
+    setUploading(true);
     try {
-      const response = await fetch(`/api/contact/contact?id=${editUser._id}`, {
+      let imgUrl = editForm.imageUrl;
+      if (imageFile) {
+        const fd = new FormData();
+        fd.append("image", imageFile);
+        const up = await uploadImage(fd);
+        if (up.success && up.url) imgUrl = up.url;
+      }
+
+      const res = await fetch("/api/contact/contact", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
+        body: JSON.stringify({ ...editForm, id: editForm._id, imageUrl: imgUrl }),
       });
 
-      if (!response.ok) throw new Error("Failed to update user");
-
-      await fetchUsers();
-      setEditUser(null);
+      if (!res.ok) throw new Error("Update failed");
+      await refresh();
       setIsEditOpen(false);
-      toast({ title: "User updated successfully!", status: "success", duration: 5000 });
-    } catch (error) {
-      toast({ title: "Failed to update user!", status: "error", duration: 5000 });
+      setImageFile(null);
+      toast({ title: "Updated successfully", status: "success" });
+    } catch (err) {
+      toast({ title: "Update failed", status: "error" });
+    } finally {
+      setUploading(false);
     }
   };
 
-  const deleteUser = async () => {
-    if (!deleteUserId) return;
+  const handleDelete = async () => {
+    if (!deleteId) return;
     try {
-      const response = await fetch(`/api/contact/contact?id=${deleteUserId}`, { method: "DELETE" });
-      if (!response.ok) throw new Error("Failed to delete user");
-
-      await fetchUsers();
-      setDeleteUserId(null);
+      const res = await fetch(`/api/contact/contact?id=${deleteId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Delete failed");
+      await refresh();
       setIsDeleteOpen(false);
-      toast({ title: "User deleted successfully!", status: "success", duration: 5000 });
-    } catch (error) {
-      toast({ title: "Failed to delete user!", status: "error", duration: 5000 });
+      toast({ title: "Deleted successfully", status: "success" });
+    } catch (err) {
+      toast({ title: "Delete failed", status: "error" });
     }
   };
 
-  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
-    const term = e.target.value.toLowerCase();
-    setSearchTerm(term);
-    const filtered = users.filter((user) => user.name && user.name.toLowerCase().includes(term));
-    setFilteredUsers(filtered);
-    setCurrentPage(1);
-  };
+  // ────────────────────────────────────────────────
+  // Helpers
+  // ────────────────────────────────────────────────
+  const prepareEdit = (u: ExtendedUser): EditFormData => ({
+    _id: u._id,
+    name: u.name,
+    email: u.email,
+    serial: u.serial || "",
+    phone: u.phone || "",
+    location: u.location || "",
+    message: u.message,
+    imageUrl: u.imageUrl,
+  });
 
-  // --- QR Code Functions ---
-  const generateQR = (user: User) => {
-    // Encoded the Serial Number inside the QR
-    const dataToEncode = JSON.stringify({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      serial: user.serial,
-      phone: user.phone,
-      department: user.location,
-    });
-    setQrCodeData(dataToEncode);
-    setSelectedItemName(user.name);
+  const generateQr = (u: ExtendedUser) => {
+    setQrCodeData(JSON.stringify({ id: u._id, serial: u.serial || "" }));
+    setSelectedNameForQr(u.name);
     setIsQrOpen(true);
   };
 
-  const downloadQRCode = () => {
-    const canvas = document.getElementById("qr-code-canvas") as HTMLCanvasElement;
+  const downloadQr = () => {
+    const canvas = document.getElementById("qr-canvas") as HTMLCanvasElement | null;
     if (!canvas) return;
-    const pngUrl = canvas.toDataURL("image/png");
-    const downloadLink = document.createElement("a");
-    downloadLink.href = pngUrl;
-    const safeFileName = selectedItemName ? selectedItemName.replace(/\s+/g, "_") : "QR_Code";
-    downloadLink.download = `${safeFileName}.png`;
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-    toast({ title: "Downloaded!", status: "success", duration: 3000 });
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png");
+    a.download = `${selectedNameForQr.replace(/\s+/g, "_")}_qr.png`;
+    a.click();
   };
 
-  const shareQRCode = async () => {
-    const canvas = document.getElementById("qr-code-canvas") as HTMLCanvasElement;
-    if (!canvas) return;
-    try {
-      const dataUrl = canvas.toDataURL("image/png");
-      const blob = await (await fetch(dataUrl)).blob();
-      const safeFileName = selectedItemName ? selectedItemName.replace(/\s+/g, "_") : "QR_Code";
-      const file = new File([blob], `${safeFileName}.png`, { type: blob.type });
-
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          title: `QR Code for ${selectedItemName}`,
-          files: [file],
-        });
-        toast({ title: "Shared successfully!", status: "success", duration: 3000 });
-      } else {
-        toast({ title: "Sharing not supported natively. Please use download.", status: "warning", duration: 5000 });
-      }
-    } catch (error) {
-      if ((error as Error).name !== "AbortError") {
-        toast({ title: "Error sharing QR Code", status: "error", duration: 3000 });
-      }
-    }
+  const onSearch = (e: ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.toLowerCase();
+    setSearchTerm(val);
+    setFilteredUsers(
+      users.filter(
+        (u) =>
+          u.name.toLowerCase().includes(val) ||
+          u.email.toLowerCase().includes(val) ||
+          u.message.toLowerCase().includes(val)
+      )
+    );
+    setCurrentPage(1);
   };
 
-  const indexOfLastUser = currentPage * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
-  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
-
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) setCurrentPage(page);
-  };
-
-  const prepareEditFormData = (user: User): EditUserFormData => {
-    return {
-      _id: user._id,
-      name: user.name || "",
-      email: user.email || "",
-      serial: user.serial || "", // Extracting serial for Edit Modal
-      phone: user.phone || "",
-      location: user.location || "",
-      message: user.message || "",
-      subscribe: user.subscribe ? "Active" : "Inactive",
-    };
-  };
+  const pageCount = Math.ceil(filteredUsers.length / pageSize);
+  const currentPageUsers = filteredUsers.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   return (
-    <Card className="sm:col-span-2 lg:col-span-3 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none cursor-pointer touch-auto">
-      <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-transparent group-hover:from-indigo-500/20 transition-all duration-300"></div>
-      <div className="relative z-10">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-lg font-semibold text-indigo-600 dark:text-indigo-300"></CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-[10px] bg-white px-7.5 pb-4 pt-7.5 shadow-1 dark:bg-gray-900 dark:shadow-card bg-gradient-to-r from-indigo-500/10 to-transparent group-hover:from-indigo-500/20 transition-all duration-300">
-            <style jsx>{`
-              .scroll-wrapper {
-                overflow-x: auto !important;
-                -webkit-overflow-scrolling: touch;
-                width: 100%;
-              }
-              .scroll-wrapper table {
-                min-width: 1100px;
-                width: 100%;
-                table-layout: auto;
-              }
-              .scroll-wrapper th.col-name, .scroll-wrapper td.col-name { width: 150px; text-align: left; }
-              .scroll-wrapper th.col-email, .scroll-wrapper td.col-email { width: 180px; }
-              .scroll-wrapper th.col-serial, .scroll-wrapper td.col-serial { width: 120px; } /* New Serial Column CSS */
-              .scroll-wrapper th.col-phone, .scroll-wrapper td.col-phone { width: 120px; }
-              .scroll-wrapper th.col-location, .scroll-wrapper td.col-location { width: 150px; }
-              .scroll-wrapper th.col-message, .scroll-wrapper td.col-message { width: 200px; }
-              .scroll-wrapper th.col-subscribe, .scroll-wrapper td.col-subscribe { width: 100px; }
-              .scroll-wrapper th.col-actions, .scroll-wrapper td.col-actions { width: 220px; }
-              .scrollable-cell { max-width: 200px; overflow-x: auto; white-space: nowrap; padding: 8px; display: block; }
-            `}</style>
-            
-            <div className="mb-5.5 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-body-2xlg font-bold text-gray-900 dark:text-white">
-                Owners' Info
-              </h2>
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-                  <DialogTrigger asChild>
-                    <Button onClick={() => setIsAddOpen(true)} className="h-10 w-full bg-blue-600 text-white hover:bg-blue-700 sm:w-auto">
-                      Add User
+    <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none shadow-xl">
+      <CardContent className="pt-6">
+        <style jsx>{`
+          .scroll-wrapper { overflow-x: auto; width: 100%; }
+          .scroll-wrapper table { min-width: 1200px; }
+        `}</style>
+
+        <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Owners / Assets</h2>
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-blue-600 hover:bg-blue-700">Add New</Button>
+              </DialogTrigger>
+              <DialogContent className="bg-white dark:bg-gray-800">
+                <DialogHeader><DialogTitle>Add User / Asset</DialogTitle></DialogHeader>
+                <form onSubmit={(e) => { e.preventDefault(); handleAdd(); }} className="space-y-4">
+                  <Input required placeholder="Name *" value={newForm.name} onChange={e => setNewForm(s => ({ ...s, name: e.target.value }))} />
+                  <Input required placeholder="AMU_ID / Email *" value={newForm.email} onChange={e => setNewForm(s => ({ ...s, email: e.target.value }))} />
+                  <Input placeholder="Serial" value={newForm.serial} onChange={e => setNewForm(s => ({ ...s, serial: e.target.value }))} />
+                  <Input placeholder="Phone" value={newForm.phone} onChange={e => setNewForm(s => ({ ...s, phone: e.target.value }))} />
+                  <Input placeholder="Department / Location" value={newForm.location} onChange={e => setNewForm(s => ({ ...s, location: e.target.value }))} />
+                  <Input required placeholder="Asset / Message *" value={newForm.message} onChange={e => setNewForm(s => ({ ...s, message: e.target.value }))} />
+                  <div>
+                    <label className="text-sm text-gray-500">Photo</label>
+                    <Input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] ?? null)} />
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit" disabled={uploading} className="bg-blue-600">
+                      {uploading ? "Saving..." : "Save"}
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-white dark:bg-gray-800">
-                    <DialogHeader>
-                      <DialogTitle className="text-gray-900 dark:text-white">Add New User</DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={(e) => { e.preventDefault(); addUser(); }} className="space-y-4 p-4">
-                      <Input placeholder="Name *" value={newUser.name} onChange={(e) => setNewUser({ ...newUser, name: e.target.value })} className="h-10 text-gray-900 dark:text-white dark:bg-gray-900" required />
-                      <Input placeholder="AMU_ID *" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} className="h-10 text-gray-900 dark:text-white dark:bg-gray-900" required />
-                      {/* Added Serial Number Input */}
-                      <Input placeholder="Serial Number" value={newUser.serial} onChange={(e) => setNewUser({ ...newUser, serial: e.target.value })} className="h-10 text-gray-900 dark:text-white dark:bg-gray-900" />
-                      <Input placeholder="Phone" value={newUser.phone} onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })} className="h-10 text-gray-900 dark:text-white dark:bg-gray-900" />
-                      <Input placeholder="Department" value={newUser.location} onChange={(e) => setNewUser({ ...newUser, location: e.target.value })} className="h-10 text-gray-900 dark:text-white dark:bg-gray-900" />
-                      <Input placeholder="Asset Info *" value={newUser.message} onChange={(e) => setNewUser({ ...newUser, message: e.target.value })} className="h-10 text-gray-900 dark:text-white dark:bg-gray-900" required />
-                      <Select value={newUser.subscribe} onValueChange={(value: any) => setNewUser({ ...newUser, subscribe: value })}>
-                        <SelectTrigger className="h-10 text-gray-900 dark:text-white dark:bg-gray-900">
-                          <SelectValue placeholder="Select Role" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
-                          <SelectItem value="Active">Active</SelectItem>
-                          <SelectItem value="Inactive">Inactive</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                          <SelectItem value="gateKeeper">GateKeeper</SelectItem>
-                          <SelectItem value="owner">Owner</SelectItem> 
-                        </SelectContent>
-                      </Select>
-                      <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)} className="text-gray-900 dark:text-white">Cancel</Button>
-                        <Button type="submit" className="h-10 bg-blue-600 text-white hover:bg-blue-700">Add</Button>
-                      </DialogFooter>
-                    </form>
-                  </DialogContent>
-                </Dialog>
-                <Input placeholder="Search by name..." value={searchTerm} onChange={handleSearch} className="h-10 w-full sm:max-w-xs text-gray-900 dark:text-white dark:bg-gray-800" />
-              </div>
-            </div>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
 
-            <div className="scroll-wrapper">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-none bg-gray-100 dark:bg-gray-800 [&>th]:px-4 [&>th]:py-3 [&>th]:text-center [&>th]:font-medium [&>th]:uppercase text-gray-900 dark:text-gray-200">
-                    <TableHead className="col-name !text-left">Name</TableHead>
-                    <TableHead className="col-email">AMU_ID</TableHead>
-                    {/* Added Serial Column Header */}
-                    <TableHead className="col-serial">Serial No.</TableHead> 
-                    <TableHead className="col-phone">Phone</TableHead>
-                    <TableHead className="col-location hidden sm:table-cell">Department</TableHead>
-                    <TableHead className="col-message hidden sm:table-cell">Asset Info</TableHead>
-                    <TableHead className="col-subscribe">Subscribe</TableHead>
-                    <TableHead className="col-actions">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {currentUsers.length > 0 ? (
-                    currentUsers.map((user) => (
-                      <TableRow key={user._id} className="text-center text-base font-medium text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50 [&>td]:px-4 [&>td]:py-3 border-t dark:border-gray-700">
-                        <TableCell className="col-name text-left">{user.name}</TableCell>
-                        <TableCell className="col-email break-words">{user.email}</TableCell>
-                        {/* Added Serial Table Cell Output */}
-                        <TableCell className="col-serial">{user.serial || "-"}</TableCell>
-                        <TableCell className="col-phone">{user.phone}</TableCell>
-                        <TableCell className="col-location hidden sm:table-cell">{user.location}</TableCell>
-                        <TableCell className="col-message hidden sm:table-cell"><div className="scrollable-cell">{user.message}</div></TableCell>
-                        <TableCell className="col-subscribe">{user.subscribe ? "Active" : "Inactive"}</TableCell>
-                        <TableCell className="col-actions">
-                          <div className="flex items-center justify-center gap-2">
-                            <Button variant="outline" size="sm" onClick={() => generateQR(user)} className="h-8 bg-green-600 hover:bg-green-700 text-white border-none">
-                              Generate QR
-                            </Button>
-                            <Button variant="outline" size="sm" onClick={() => { setEditUser(prepareEditFormData(user)); setIsEditOpen(true); }} className="h-8 border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30">
-                              Edit
-                            </Button>
-                            <Button variant="destructive" size="sm" onClick={() => { setDeleteUserId(user._id); setIsDeleteOpen(true); }} className="h-8 bg-red-600 text-white hover:bg-red-700">
-                              Delete
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
+            <Input
+              placeholder="Search name, ID, asset..."
+              value={searchTerm}
+              onChange={onSearch}
+              className="w-full sm:w-64"
+            />
+          </div>
+        </div>
+
+        <div className="scroll-wrapper">
+          <Table>
+            <TableHeader className="bg-gray-100 dark:bg-gray-900">
+              <TableRow>
+                <TableHead>Photo</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>AMU_ID</TableHead>
+                <TableHead>Serial</TableHead>
+                <TableHead>Asset</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Last Movement</TableHead>
+                <TableHead className="text-center">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {currentPageUsers.map(u => (
+                <TableRow key={u._id}>
+                  <TableCell>
+                    <div className="relative h-10 w-10 rounded-full overflow-hidden border">
+                      <Image src={u.imageUrl || "/placeholder.png"} alt="" fill className="object-cover" />
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium">{u.name}</TableCell>
+                  <TableCell>{u.email}</TableCell>
+                  <TableCell>{u.serial || "—"}</TableCell>
+                  <TableCell>{u.message}</TableCell>
+                  <TableCell>
+                    <span className={
+                      ["Active", "Inside"].includes(u.statusData?.status || "")
+                        ? "text-green-600 font-semibold"
+                        : "text-red-600 font-semibold"
+                    }>
+                      {getDisplayedStatus(u)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {getLastMovementText(u)}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2 justify-center flex-wrap">
+                      <Button size="sm" variant="outline" className="border-green-600 text-green-600 hover:bg-green-50" onClick={() => generateQr(u)}>
+                        QR
+                      </Button>
+                      <Button size="sm" variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50" onClick={() => { setEditForm(prepareEdit(u)); setIsEditOpen(true); }}>
+                        Edit
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => { setSelectedUserForHistory(u); setIsHistoryOpen(true); }}>
+                        History
+                      </Button>
+                      <Button size="sm" variant="destructive" onClick={() => { setDeleteId(u._id); setIsDeleteOpen(true); }}>
+                        Delete
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {pageCount > 1 && (
+          <Pagination className="mt-6">
+            <PaginationContent>
+              <PaginationPrevious
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                className={currentPage === 1 ? "opacity-50 pointer-events-none" : ""}
+              />
+              {Array.from({ length: pageCount }, (_, i) => (
+                <PaginationItem key={i}>
+                  <PaginationLink
+                    isActive={currentPage === i + 1}
+                    onClick={() => setCurrentPage(i + 1)}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationNext
+                onClick={() => setCurrentPage(p => Math.min(pageCount, p + 1))}
+                className={currentPage === pageCount ? "opacity-50 pointer-events-none" : ""}
+              />
+            </PaginationContent>
+          </Pagination>
+        )}
+
+        {/* ─── Edit Dialog ─── */}
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <DialogContent className="bg-white dark:bg-gray-800">
+            <DialogHeader><DialogTitle>Edit</DialogTitle></DialogHeader>
+            {editForm && (
+              <form onSubmit={e => { e.preventDefault(); handleUpdate(); }} className="space-y-4">
+                <Input required value={editForm.name} onChange={e => setEditForm(s => s ? { ...s, name: e.target.value } : null)} />
+                <Input required value={editForm.email} onChange={e => setEditForm(s => s ? { ...s, email: e.target.value } : null)} />
+                <Input value={editForm.serial} onChange={e => setEditForm(s => s ? { ...s, serial: e.target.value } : null)} />
+                <Input value={editForm.phone} onChange={e => setEditForm(s => s ? { ...s, phone: e.target.value } : null)} />
+                <Input value={editForm.location} onChange={e => setEditForm(s => s ? { ...s, location: e.target.value } : null)} />
+                <Input required value={editForm.message} onChange={e => setEditForm(s => s ? { ...s, message: e.target.value } : null)} />
+                <div>
+                  <label className="text-sm text-gray-500">New Photo (optional)</label>
+                  <Input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] ?? null)} />
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" type="button" onClick={() => setIsEditOpen(false)}>Cancel</Button>
+                  <Button type="submit" disabled={uploading} className="bg-blue-600">
+                    {uploading ? "Saving..." : "Save Changes"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* ─── Delete Confirm ─── */}
+        <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+          <DialogContent className="bg-white dark:bg-gray-800">
+            <DialogHeader><DialogTitle>Delete?</DialogTitle></DialogHeader>
+            <p className="py-4">This cannot be undone.</p>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Cancel</Button>
+              <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* ─── QR Dialog ─── */}
+        <Dialog open={isQrOpen} onOpenChange={setIsQrOpen}>
+          <DialogContent className="bg-white dark:bg-gray-800 flex flex-col items-center">
+            <DialogHeader><DialogTitle>QR: {selectedNameForQr}</DialogTitle></DialogHeader>
+            <div className="p-6 bg-white rounded-xl shadow">
+              <QRCodeCanvas id="qr-canvas" value={qrCodeData || ""} size={240} level="H" includeMargin />
+            </div>
+            <Button className="mt-6 w-full bg-blue-600" onClick={downloadQr}>
+              Download PNG
+            </Button>
+          </DialogContent>
+        </Dialog>
+
+        {/* ─── History Dialog (from /api/users/users) ─── */}
+        <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
+          <DialogContent className="max-w-3xl bg-white dark:bg-gray-800">
+            <DialogHeader>
+              <DialogTitle>
+                Gate History — {selectedUserForHistory?.name} ({selectedUserForHistory?.email})
+              </DialogTitle>
+            </DialogHeader>
+
+            {selectedUserForHistory?.statusData?.history?.length ? (
+              <div className="max-h-96 overflow-y-auto mt-4 rounded border">
+                <Table>
+                  <TableHeader className="bg-gray-50 dark:bg-gray-900 sticky top-0">
                     <TableRow>
-                      {/* Changed colSpan from 7 to 8 to fit the new Serial column smoothly */}
-                      <TableCell colSpan={8} className="py-10 text-center text-gray-500 dark:text-gray-400">
-                        {users.length > 0 ? "No users match your search." : "No users found."}
-                      </TableCell>
+                      <TableHead>When</TableHead>
+                      <TableHead>Action</TableHead>
+                      <TableHead>Result</TableHead>
+                      <TableHead>By</TableHead>
+                      <TableHead>Notes</TableHead>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-
-            {totalPages > 1 && (
-              <Pagination className="mt-6 flex justify-center text-gray-900 dark:text-white">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious href="#" onClick={(e) => { e.preventDefault(); handlePageChange(currentPage - 1); }} className={currentPage === 1 ? "pointer-events-none opacity-50" : ""} />
-                  </PaginationItem>
-                  {[...Array(totalPages)].map((_, index) => (
-                    <PaginationItem key={index}>
-                      <PaginationLink href="#" onClick={(e) => { e.preventDefault(); handlePageChange(index + 1); }} isActive={currentPage === index + 1}>
-                        {index + 1}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
-                  <PaginationItem>
-                    <PaginationNext href="#" onClick={(e) => { e.preventDefault(); handlePageChange(currentPage + 1); }} className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""} />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+                  </TableHeader>
+                  <TableBody>
+                    {[...selectedUserForHistory.statusData.history]
+                      .reverse()
+                      .map((e, i) => (
+                        <TableRow key={i}>
+                          <TableCell className="whitespace-nowrap font-medium">
+                            {formatDistanceToNow(parseISO(e.timestamp), { addSuffix: true })}
+                          </TableCell>
+                          <TableCell>{e.action}</TableCell>
+                          <TableCell>{e.status}</TableCell>
+                          <TableCell>{e.performedBy}</TableCell>
+                          <TableCell className="text-muted-foreground">{e.notes || "—"}</TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <div className="py-12 text-center text-muted-foreground">
+                No gate records yet.
+              </div>
             )}
 
-            {/* EDIT MODAL */}
-            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-              <DialogContent className="bg-white dark:bg-gray-800">
-                <DialogHeader><DialogTitle className="text-gray-900 dark:text-white">Edit User</DialogTitle></DialogHeader>
-                {editUser && (
-                  <form onSubmit={(e) => { e.preventDefault(); updateUser(); }} className="space-y-4 p-4">
-                    <Input placeholder="Name *" value={editUser.name} onChange={(e) => setEditUser({ ...editUser, name: e.target.value })} className="h-10 text-gray-900 dark:text-white dark:bg-gray-900" required />
-                    <Input placeholder="Email *" value={editUser.email} onChange={(e) => setEditUser({ ...editUser, email: e.target.value })} className="h-10 text-gray-900 dark:text-white dark:bg-gray-900" required />
-                    {/* Edit Form Serial Input */}
-                    <Input placeholder="Serial Number" value={editUser.serial} onChange={(e) => setEditUser({ ...editUser, serial: e.target.value })} className="h-10 text-gray-900 dark:text-white dark:bg-gray-900" />
-                    <Input placeholder="Phone" value={editUser.phone} onChange={(e) => setEditUser({ ...editUser, phone: e.target.value })} className="h-10 text-gray-900 dark:text-white dark:bg-gray-900" />
-                    <Input placeholder="Department" value={editUser.location} onChange={(e) => setEditUser({ ...editUser, location: e.target.value })} className="h-10 text-gray-900 dark:text-white dark:bg-gray-900" />
-                    <Input placeholder="Asset Info *" value={editUser.message} onChange={(e) => setEditUser({ ...editUser, message: e.target.value })} className="h-10 text-gray-900 dark:text-white dark:bg-gray-900" required />
-                    <Select value={editUser.subscribe} onValueChange={(value: any) => setEditUser({ ...editUser, subscribe: value })}>
-                      <SelectTrigger className="h-10 text-gray-900 dark:text-white dark:bg-gray-900"><SelectValue placeholder="Select Role" /></SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
-                        <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="Inactive">Inactive</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <DialogFooter>
-                      <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)} className="text-gray-900 dark:text-white">Cancel</Button>
-                      <Button type="submit" className="h-10 bg-blue-600 text-white hover:bg-blue-700">Save Changes</Button>
-                    </DialogFooter>
-                  </form>
-                )}
-              </DialogContent>
-            </Dialog>
-
-            {/* DELETE MODAL */}
-            <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-              <DialogContent className="bg-white dark:bg-gray-800">
-                <DialogHeader><DialogTitle className="text-gray-900 dark:text-white">Confirm Deletion</DialogTitle></DialogHeader>
-                <p className="py-4 text-gray-700 dark:text-gray-300">Are you sure you want to delete this user? This action cannot be undone.</p>
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setIsDeleteOpen(false)} className="h-10 text-gray-900 dark:text-white">Cancel</Button>
-                  <Button type="button" variant="destructive" onClick={deleteUser} className="h-10 bg-red-600 text-white hover:bg-red-700">Delete</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-
-            {/* QR CODE MODAL */}
-            <Dialog open={isQrOpen} onOpenChange={setIsQrOpen}>
-              <DialogContent className="sm:max-w-md bg-white dark:bg-gray-800 border-none shadow-2xl">
-                <div className="flex flex-col items-center">
-                  <DialogHeader><DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white">QR Code</DialogTitle></DialogHeader>
-                  <p className="text-center mb-6 text-gray-600 dark:text-gray-300">Generated for <strong className="text-gray-900 dark:text-white">{selectedItemName}</strong></p>
-                  
-                  {qrCodeData && (
-                    <div className="p-4 bg-white border-4 border-gray-200 dark:border-gray-700 rounded-xl mb-6 shadow-inner">
-                      {/* The canvas handles generating the actual QR image */}
-                      <QRCodeCanvas id="qr-code-canvas" value={qrCodeData} size={220} level="H" includeMargin={true} />
-                    </div>
-                  )}
-
-                  <DialogFooter className="w-full flex flex-col sm:flex-row gap-3">
-                    <Button onClick={downloadQRCode} className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto">Download</Button>
-                    <Button onClick={shareQRCode} className="bg-purple-600 hover:bg-purple-700 text-white w-full sm:w-auto">Share</Button>
-                    <Button variant="outline" onClick={() => setIsQrOpen(false)} className="w-full sm:w-auto text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">Close</Button>
-                  </DialogFooter>
-                </div>
-              </DialogContent>
-            </Dialog>
-
-          </div>
-        </CardContent>
-      </div>
+            <DialogFooter>
+              <Button onClick={() => setIsHistoryOpen(false)}>Close</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </CardContent>
     </Card>
   );
 }

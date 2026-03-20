@@ -1,28 +1,19 @@
-import mongoose, { Schema, Document } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
-export interface ContactType extends Document {
-  name: string;
-  email: string;
-  phone: string; // Changed to string to match schema
-  location: string;
-  message: string;
-  serial: string;
-  subscribe: boolean;
-  created_at: Date;
-  updated_at: Date;
-}
+const ContactSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    serial: { type: String },
+    phone: { type: String },
+    location: { type: String },
+    message: { type: String, required: true },
+    subscribe: { type: Boolean, default: false },
+    imageUrl: { type: String }, // <-- ADD THIS LINE
+  },
+  { timestamps: true }
+);
 
-const ContactSchema: Schema = new Schema({
-  name: String,
-  email: String,
-  serial: {type: String, required: true},
-  phone: String,
-  location: String,
-  message: String,
-  subscribe: { type: Boolean, default: false }, // Added subscribe field
-  created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now },
-});
+const Contact = models.Contact || model("Contact", ContactSchema);
 
-export default mongoose.models.Contact ||
-  mongoose.model<ContactType>("Contact", ContactSchema);
+export default Contact;

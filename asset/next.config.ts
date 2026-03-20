@@ -20,7 +20,9 @@ const nextConfig = {
   },
   // Keeping your experimental config
   experimental: {
-    optimizePackageImports: ["next/image"],
+    serverActions: {
+      bodySizeLimit: '10mb', // Allows uploads up to 10MB
+    },
   },
 };
 

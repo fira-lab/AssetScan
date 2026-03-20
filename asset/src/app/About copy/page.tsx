@@ -22,7 +22,7 @@ import ProfessionalImg from "../Images/Profession.jpg";
 import FaithActionImg from "../Images/Faith.jpg";
 import PublicationImg from "../Images/Translation.jpg";
 import Founders from "../Images/Founders.jpg";
-import Ai from "../Ai/pages"; // Check if this path is correct (often '../Ai/page' in App Router)
+
 import Link from "next/link";
 import { useLanguageStore } from "../LanguageStore/languageStore";
 
@@ -334,7 +334,7 @@ export default function About() {
       minH="100vh"
     >
       {/* Consider if the Ai component import/usage is correct */}
-      <Ai />
+
       <Flex
         direction="column"
         maxW="1400px"

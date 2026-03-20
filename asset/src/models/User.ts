@@ -1,31 +1,79 @@
-import mongoose, { Schema, Document } from "mongoose";
+// models/User.ts
+import mongoose from 'mongoose';
 
-export interface IUser extends Document {
-  name: string;
-  email: string;
-  phone: string;
-  gender: string;
-  status: string;
-  address: string;
-}
-
-const userSchema: Schema = new Schema({
-  name: { type: String, required: true },
-  email: {
+const historyEntrySchema = new mongoose.Schema({
+  timestamp: {
+    type: Date,
+    default: Date.now,
+  },
+  action: {
     type: String,
+    enum: ['Entering the gate', 'Exiting the gate'],
     required: true,
-   
   },
   status: {
     type: String,
+    enum: ['Approved', 'Denied'],
     required: true,
-    enum: ["Owner", "Borrower", "Admin","Gate Keeper"],
   },
-  phone: { type: String, required: true },
-  gender: { type: String, required: true },
-  address: { type: String, required: true },
+  // Optional – useful for auditing
+  performedBy: {
+    type: String,           // e.g. "Gatekeeper-01", "Admin", or user id
+    default: 'Gatekeeper',
+  },
+  notes: {
+    type: String,
+    default: '',
+  },
+}, { _id: false });
+
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  email: {                    // This is actually the Owner/ID like "NSR/868/14"
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+  },
+  phone: {
+    type: String,
+    required: true,
+  },
+  gender: {
+    type: String,
+    enum: ['Male', 'Female', 'Other'],
+    default: 'Other',
+  },
+  status: {
+    type: String,
+    enum: ['New Soul', 'Repent', 'Promise', 'Active', 'Inactive'],
+    default: 'Active',
+  },
+  address: {
+    type: String,
+    default: '',
+  },
+
+  // NEW: Gate movement history
+  history: {
+    type: [historyEntrySchema],
+    default: [],
+  },
+
+  // Optional fields you might want to copy from Contact sometimes
+  serial: {
+    type: String,
+    sparse: true,           // not required, but useful for matching
+  },
+  message: String,           // asset type
+  location: String,
+
+}, {
+  timestamps: true,          // createdAt, updatedAt
 });
 
-const User = mongoose.models.User || mongoose.model<IUser>("User", userSchema);
-
-export default User;
+export default mongoose.models.User || mongoose.model('User', userSchema);
