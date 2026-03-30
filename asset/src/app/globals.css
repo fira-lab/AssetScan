@@ -2,15 +2,120 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 1. Import Lovable Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Open+Sans:wght@400;500;600;700&display=swap');
+
 @layer base {
   :root {
-    --background: 255 255 255;
-    --foreground: 0 0 0;
-    --border: 200 200 200;
+    --background: 220 20% 97%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 225 73% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 230 60% 28%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 14% 90%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 45 93% 58%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 87%;
+    --input: 220 13% 87%;
+    --ring: 225 73% 40%;
+    --success: 142 71% 35%;
+    --success-foreground: 0 0% 100%;
+    --radius: 0.75rem;
+    --hero-gradient: linear-gradient(135deg, hsl(225 73% 40% / 0.85), hsl(245 58% 30% / 0.9));
+    --section-dark: 222 47% 11%;
+    --section-dark-foreground: 210 40% 98%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217 91% 60%;
+  }
+
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 96%;
+    --card: 222 47% 10%;
+    --card-foreground: 210 40% 96%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --accent: 45 93% 58%;
+    --accent-foreground: 222 47% 11%;
+    --border: 217 33% 17%;
+  }
+}
+
+/* 2. Modified Base Styles (No @apply for custom colors) */
+@layer base {
+  * {
+    border-color: hsl(var(--border));
   }
 
   body {
-    background-color: rgb(var(--background));
-    color: rgb(var(--foreground));
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Open Sans', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+  }
+}
+
+/* 3. Lovable Custom Components (Manually Fixed) */
+@layer components {
+  .section-padding {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  @media (min-width: 768px) {
+    .section-padding {
+      padding-top: 6rem;
+      padding-bottom: 6rem;
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  .gradient-hero-overlay {
+    background: var(--hero-gradient);
+  }
+
+  .section-dark-bg {
+    background-color: hsl(var(--section-dark));
+    color: hsl(var(--section-dark-foreground));
+  }
+
+  /* FIXED: Removed @apply text-accent */
+  .stat-number {
+    @apply text-4xl md:text-5xl font-extrabold;
+    color: hsl(var(--accent)); 
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  /* FIXED: Removed @apply from-primary */
+  .feature-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, hsl(var(--primary) / 0.9), hsl(var(--primary) / 0.4), transparent);
+    opacity: 0;
+    transition: opacity 500ms;
+  }
+  
+  .group:hover .feature-card-overlay {
+    opacity: 1;
   }
 }

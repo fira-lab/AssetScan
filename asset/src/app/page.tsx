@@ -21,7 +21,8 @@ import { useColorMode } from "@/components/ui/color-mode";
 import Image from "next/image";
 
 // Image Imports (ensure paths are correct)
-import OmmHome from "./Images/OmmHome.jpg";
+// import OmmHome from "./Images/OmmHome.jpg";
+import OmmHome from "./Images/AssetScan.png";
 import mm1 from "./Images/mm1.jpg";
 import mm3 from "./Images/mm3.png";
 import omm4 from "./Images/omm4.jpg";
@@ -57,6 +58,13 @@ import Footer from "./Footer/page";
 import Loader from "./Loader/page";
 import { useLanguageStore } from "./LanguageStore/languageStore";
 import Link from "next/link";
+import HeroSection from "./HeroSection/page";
+import SystemOverview from "./SystemOverview/page";
+import StatsSection from "./StatsSection/page";
+import FeaturesSection from "./Features/page";
+import SecurityHighlight from "./SecurityHighlight/page";
+import VisionMissionSection from "./VisionMission/page";
+import FooterSection from "./FooterSection/page";
 
 // import { RegionLabels } from "./admin/(home)/_components/region-labels"; // Uncomment if used
 
@@ -761,529 +769,36 @@ export default function HomePage() {
 
   // --- Return JSX with original UI structure and translations ---
   return (
-    <div>
-      {loading ? (
-        <Loader />
-      ) : (
-        // Maintaining the original structure and styles from the user's provided code
-        <Box
-          bg={colorMode === "light" ? "gray.200" : "gray.700"} // Original BG
-          color={colorMode === "light" ? "gray.800" : "white"} // Original Color
-          minH="100vh"
-          overflow="hidden" // Keep overflow hidden
-          className="relative" // Original className
-        >
-          {/* Hero Section - Original Structure */}
-          <Flex
-            direction={{ base: "column", md: "row" }}
-            align="center"
-            justify="center"
-            minH="80vh"
-            px={8}
-            py={16}
-            bgGradient="linear(to-r, blue.500, indigo.600)" // Original Gradient
-            position="relative"
-            overflow="hidden"
-            className="animate__animated animate__fadeIn" // Original Animation
-          >
-            <Image
-              src={OmmHome}
-              alt={getText("altHeroBackground")} // Translated alt text
-              fill // Original 'fill' property
-              style={{ objectFit: "cover", objectPosition: "top" }} // Original style
-              quality={100}
-              priority
-              className="animate__animated animate__zoomIn animate__slow" // Original Animation
-            />
-            <VStack
-              textAlign="center"
-              zIndex={1}
-              maxW="700px"
-              className="animate__animated animate__fadeInUp animate__delay-1s" // Original Animation
-            >
-              <Heading
-                fontSize={isMobile ? "4xl" : "6xl"}
-                fontWeight="extrabold"
-                color="white"
-                lineHeight="1.2"
-              >
-                {getText("heroHeading")} {/* Translated */}
-              </Heading>
-              <Text
-                fontSize={isMobile ? "lg" : "xl"}
-                fontWeight="900" // Extremely bold
-                opacity={0.85} // Slightly semi-transparent
-                // Fallback inline style for gradient, shadow, and transparency
-                style={{
-                  backgroundImage:
-                    "linear-gradient(to right,rgb(244, 243, 255),rgb(241, 241, 255))",
-                  WebkitBackgroundClip: "text",
-                  backgroundClip: "text",
-                  // color: "transparent",
-                  textShadow: "2px 2px 4px rgba(255, 255, 255, 0.5)", // Subtle shadow for visibility
-                  fontWeight: 1000, // Maximum boldness
-                  opacity: 1, // Slightly semi-transparent
-                }}
-              >
-                {getText("heroSubheading")} {/* Translated */}
-              </Text>
-              {/* Original Button structure (commented out) */}
-              {/* <Button
-                size="lg"
-                colorScheme="yellow"
-                variant="solid"
-                bg="yellow.400"
-                color="gray.900"
-                _hover={{ bg: "yellow.300" }}
-                className="animate__animated animate__pulse animate__infinite hover:animate__tada"
-              >
-                Ontdek Nu
-              </Button> */}
-            </VStack>
-          </Flex>
-          {/* Language Selector Placeholder - Original Position & Animation */}
-          <Box
-            position="absolute"
-            top={4}
-            right={4}
-            zIndex={2}
-            className="animate__animated animate__fadeInDown"
-          >
-            {/* Implement your language selector here using Select components if needed */}
-          </Box>
-             {/* Ministry Section - Original Structure */}
-          <Box
-            py={4} // Original Padding
-            px={8}
-            className="animate__animated animate__fadeIn animate__delay-4s" // Original Animation
-          >
-            <Heading textAlign="center" mb={12} fontSize="3xl">
-              {getText("ministryHeading")} {/* Translated */}
-            </Heading>
-            <Flex
-              direction={{ base: "column", md: "row" }}
-              justify="center"
-              gap={12} // Original Gap
-              maxW="1200px"
-              mx="auto"
-            >
-              <Flex
-                direction={{ base: "column", md: "row" }}
-                align="center"
-                bg={colorMode === "light" ? "white" : "#130716"} // Original BG
-                p={8}
-                borderRadius="md"
-                boxShadow="lg"
-                className="hover:animate__pulse" // Original Animation
-              >
-                <Box
-                  position="relative"
-                  width={{ base: "100%", md: "600px" }} // Original Width
-                  height={{ base: "200px", md: "200px" }} // Original Height
-                  mr={{ base: 0, md: 6 }} // Original Margin
-                  mb={{ base: 4, md: 0 }}
-                  borderRadius="md"
-                  overflow="hidden"
-                  boxShadow="md"
-                >
-                  <Image
-                    src={holy}
-                    alt={getText("altMinistryImage")} // Translated alt text
-                    layout="fill" // Original layout
-                    objectFit="cover"
-                    quality={85}
-                    // Keeping original styling structure below
-                    // borderRadius="md" // Already covered by overflow hidden on parent
-                    // transition="transform 0.3s ease" // Part of original hover effect logic
-                    // _hover={{ transform: "scale(1.05)" }} // Part of original hover effect logic
-                  />
-                </Box>
-                <VStack align="start">
-                  <Heading size="md">{getText("ministryCardTitle")}</Heading>{" "}
-                  {/* Translated */}
-                  <Text>{getText("ministryCardText")}</Text> {/* Translated */}
-                </VStack>
-              </Flex>
-            </Flex>
-          </Box>
-          {/* Stats Section - Original Structure */}
-          <Box
-            py={8} // Original Padding
-            px={8}
-            ref={statsRef}
-            className="animate__animated animate__fadeIn animate__delay-2s" // Original Animation
-          >
-            <Heading textAlign="center" mb={12} fontSize="3xl">
-              {getText("impactHeading")} {/* Translated */}
-            </Heading>
-            {/* Removed loading check here as loading state is handled differently now */}
-            {error ? ( // Original Error Handling
-              <Text textAlign="center" fontSize="lg" color="red.500">
-                {getText("errorLoadingData")} {/* Translated */}
-              </Text>
-            ) : (
-              <Flex
-                direction={{ base: "column", md: "row" }}
-                justify="center"
-                gap={8} // Original Gap
-                maxW="1200px"
-                mx="auto"
-              >
-                {/* Souls Received Jesus - Original Structure */}
-                <Box
-                  bg={colorMode === "light" ? "white" : "#130716"} // Original BG
-                  p={6}
-                  borderRadius="md"
-                  boxShadow="lg"
-                  textAlign="center"
-                  className="animate__animated animate__fadeInLeft animate__delay-2s hover:animate__pulse" // Original Animation
-                >
-                  <Heading size="md">{getText("impactCardTitleHeard")}</Heading>{" "}
-                  {/* Translated */}
-                  <Text
-                    fontSize="5xl"
-                    fontWeight="bold"
-                    color={colorMode === "light" ? "yellow.600" : "yellow.300"} // Original Color
-                  >
-                    {receivedJesus.toLocaleString()}+
-                  </Text>
-                  <Text fontSize="sm">{getText("impactCardSubtextHeard")}</Text>{" "}
-                  {/* Translated */}
-                </Box>
+  <div className="min-h-screen bg-transparent"> 
+    {loading ? (
+      <Loader />
+    ) : (
+      /* REPLACE the <Box> with a standard <div>. 
+         We use 'bg-slate-50' (or whatever Lovable used) 
+         to ensure the whole page has a clean base.
+      */
+      <main className="relative w-full overflow-x-hidden bg-[#0a0a0a]">
+        
+        {/* 1. Hero Section (Now has room to breathe) */}
+        <HeroSection />
 
-                {/* Repented - Original Structure */}
-                <Box
-                  bg={colorMode === "light" ? "white" : "#130716"} // Original BG
-                  p={6}
-                  borderRadius="md"
-                  boxShadow="lg"
-                  textAlign="center"
-                  className="animate__animated animate__fadeInUp animate__delay-2s hover:animate__pulse" // Original Animation
-                >
-                  <Heading size="md">
-                    {getText("impactCardTitleNewSouls")}
-                  </Heading>{" "}
-                  {/* Translated */}
-                  <Text
-                    fontSize="5xl"
-                    fontWeight="bold"
-                    color={colorMode === "light" ? "yellow.600" : "yellow.300"} // Original Color
-                  >
-                    {repented.toLocaleString()}+
-                  </Text>
-                  <Text fontSize="sm">
-                    {getText("impactCardSubtextNewSouls")}
-                  </Text>{" "}
-                  {/* Translated */}
-                </Box>
+        {/* 2. Language Selector - Keep as a standard div if you want to use it */}
+        <div className="absolute top-4 right-4 z-50">
+           {/* Selector code here */}
+        </div>
 
-                {/* Baptized - Original Structure */}
-                <Box
-                  bg={colorMode === "light" ? "white" : "#130716"} // Original BG
-                  p={6}
-                  borderRadius="md"
-                  boxShadow="lg"
-                  textAlign="center"
-                  className="animate__animated animate__fadeInRight animate__delay-2s hover:animate__pulse" // Original Animation
-                >
-                  <Heading size="md">
-                    {getText("impactCardTitleMissions")}
-                  </Heading>{" "}
-                  {/* Translated */}
-                  <Text
-                    fontSize="5xl"
-                    fontWeight="bold"
-                    color={colorMode === "light" ? "yellow.600" : "yellow.300"} // Original Color
-                  >
-                    {baptized.toLocaleString()}+
-                  </Text>
-                  <Text fontSize="sm">
-                    {getText("impactCardSubtextMissions")}
-                  </Text>{" "}
-                  {/* Translated */}
-                </Box>
-              </Flex>
-            )}
-          </Box>
-          {/* Our Missions Section - Original Structure */}
-          <Box className="animate__animated animate__fadeIn animate__delay-4s bg">
-            {" "}
-            {/* Original Class */}
-            <Heading
-              textAlign="center"
-              mb={12}
-              fontSize="3xl"
-              fontWeight="extrabold"
-            >
-              {getText("missionsYearsHeading")} {/* Translated */}
-            </Heading>
-            <div
-              // Original inline style for background
-              style={{
-                background: colorMode === "light" ? "#fdfdfd" : "#1e0d24",
-              }}
-            >
-              <VStack p={4} spacing={20} maxW="1600px" mx="auto">
-                {" "}
-                {/* Original spacing & maxWidth */}
-                {/* --- Map over Mission Data - Original Structure --- */}
-                {[
-                  {
-                    titleKey: "missionSectionTitle2025Medical",
-                    descKey: "missionSectionDesc2025Medical",
-                    images: missionImageData.medical2025,
-                    altKey: "altBishoftuMissionImage",
-                  },
-                  {
-                    titleKey: "missionSectionTitle2025Jimma",
-                    descKey: "missionSectionDesc2025Jimma",
-                    images: missionImageData.jimma2007,
-                    altKey: "altFoundingMissionImage",
-                  },
-                  {
-                    titleKey: "missionSectionTitle2024Summer",
-                    descKey: "missionSectionDesc2024Summer",
-                    images: missionImageData.summer2024,
-                    altKey: "altBishoftuMissionImage",
-                  },
+        {/* 3. The rest of your Lovable Sections */}
+        <SystemOverview />
+        <StatsSection />
+        <FeaturesSection />
+        <SecurityHighlight />
+        <VisionMissionSection />
+        
+        {/* 4. Footer */}
+        <FooterSection />
 
-                  {
-                    titleKey: "missionSectionTitle2023Alemgena",
-                    descKey: "missionSectionDesc2023Alemgena",
-                    images: missionImageData.alemgena2023,
-                    altKey: "altAlemgenaMissionImage",
-                  },
-                ].map((mission, missionIndex) => (
-                  <Box
-                    key={missionIndex}
-                    bg={colorMode === "light" ? "#f5f7fa" : "#130716"}
-                    p={8}
-                    borderRadius="lg"
-                    boxShadow="xl"
-                    className="hover:animate__pulse" // Original Animation
-                    w="full"
-                  >
-                    <Heading
-                      size="md"
-                      mb={4}
-                      textAlign="center"
-                      color="#605af2"
-                    >
-                      {" "}
-                      {/* Original Color */}
-                      {getText(mission.titleKey)} {/* Translated */}
-                    </Heading>
-                    <Text
-                      fontSize="md"
-                      mb={6}
-                      textAlign="center"
-                      color={colorMode === "light" ? "gray.600" : "gray.300"} // Original Color
-                    >
-                      {getText(mission.descKey)} {/* Translated */}
-                    </Text>
-                    <Flex
-                      direction={{ base: "column", md: "row" }} // Original Direction
-                      wrap="wrap"
-                      justify="center"
-                      gap={6} // Original Gap
-                    >
-                      {mission.images.map((img, index) => (
-                        <Box
-                          key={index}
-                          position="relative"
-                          // Original Width structure
-                          width={{ base: "100%", sm: "300px", md: "250px" }}
-                          height="200px" // Original Height
-                          borderRadius="lg"
-                          overflow="hidden"
-                          // Original Hover effect structure
-                          _hover={{
-                            transform: "scale(1.05)",
-                            boxShadow: "lg",
-                            transition: "all 0.3s ease",
-                          }}
-                          cursor="pointer"
-                        >
-                          <Image
-                            src={img.src}
-                            alt={`${getText(mission.altKey)} ${index + 1}`} // Translated alt text
-                            layout="fill"
-                            objectFit="cover"
-                            quality={85}
-                          />
-                          {/* Original Hover Overlay Structure */}
-                          <Box
-                            position="absolute"
-                            top="0"
-                            left="0"
-                            right="0"
-                            bottom="0"
-                            bg="rgba(0, 0, 0, 0.7)"
-                            color="white"
-                            opacity={0}
-                            _hover={{ opacity: 1, transition: "opacity 0.3s" }}
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                            p={4}
-                            textAlign="center"
-                          >
-                            <Text fontSize="sm" fontWeight="medium">
-                              {getText(img.descKey)} {/* Translated */}
-                            </Text>
-                          </Box>
-                        </Box>
-                      ))}
-                    </Flex>
-                  </Box>
-                ))}
-              </VStack>
-            </div>
-            {/* Original "See More" Button Structure (commented out content inside)*/}
-            <Box textAlign="center" mt={4} mb={12}>
-              <Link href="/RecentMissions">
-                <Button
-                  size="lg"
-                  colorScheme="yellow"
-                  variant="solid"
-                  bg="yellow.400"
-                  color="gray.900"
-                  _hover={{ bg: "yellow.300", transform: "scale(1.05)" }}
-                  transition="all 0.3s ease"
-                  className="animate__animated animate__pulse animate__infinite" // Original Animation
-                >
-                  {getText("seeMoreButton")} {/* Translated */}
-                </Button>
-              </Link>
-            </Box>
-          </Box>
-          {/* Highlights Section - Original Structure */}
-          <Box
-            py={{ base: 8, md: 16 }}
-            px={{ base: 4, md: 8 }}
-            bg={colorMode === "light" ? "blue.100" : "blue.900"} // Distinct background
-            color={colorMode === "light" ? "blue.800" : "blue.100"}
-          >
-            <Heading
-              textAlign="center"
-              mb={0}
-              fontSize={{ base: "xl", md: "3xl" }}
-              fontStyle="italic"
-              maxW="1000px"
-              mx="auto"
-            >
-              {getText("bibleVerseHeading")} {/* Added quotes */}
-            </Heading>
-            <Text textAlign="center" mt={2} fontSize="md" fontWeight="medium">
-              - Matthew 28:19
-            </Text>
-          </Box>
-          <Box
-            py={16} // Original Padding
-            px={8}
-            className="animate__animated animate__fadeIn animate__delay-3s" // Original Animation
-          >
-            <Flex
-              direction={{ base: "column", md: "row" }}
-              justify="center"
-              gap={8} // Original Gap
-              maxW="1200px"
-              mx="auto"
-            >
-              {/* Vision Card - Original Structure */}
-              <Card
-                className={`${
-                  // Original ClassName usage
-                  colorMode === "light" ? "bg-white" : "bg-gray-800"
-                } shadow-lg rounded-md overflow-hidden animate__animated animate__fadeInLeft animate__delay-3s hover:animate__pulse`}
-              >
-                <CardHeader>
-                  <Heading size="md">{getText("visionCardTitle")}</Heading>{" "}
-                  {/* Translated */}
-                </CardHeader>
-                <CardContent>
-                  <Text>{getText("visionCardText")}</Text> {/* Translated */}
-                </CardContent>
-                <CardFooter>
-                  <Link href="/About">
-                    <Button variant="ghost" colorScheme="blue">
-                      {getText("learnMoreButton")} {/* Translated */}
-                    </Button>
-                  </Link>
-                </CardFooter>
-              </Card>
-
-              {/* Mission Card - Original Structure */}
-              <Card
-                className={`${
-                  colorMode === "light" ? "bg-white" : "bg-gray-800"
-                } shadow-lg rounded-md overflow-hidden animate__animated animate__fadeInUp animate__delay-3s hover:animate__pulse`}
-              >
-                <CardHeader>
-                  <Heading size="md">{getText("missionCardTitle")}</Heading>{" "}
-                  {/* Translated */}
-                </CardHeader>
-                <CardContent>
-                  <Text>{getText("missionCardText")}</Text> {/* Translated */}
-                </CardContent>
-                <CardFooter>
-                  <Link href="/About">
-                    <Button variant="ghost" colorScheme="blue">
-                      {getText("learnMoreButton")} {/* Translated */}
-                    </Button>
-                  </Link>
-                </CardFooter>
-              </Card>
-
-              {/* Objectives Card - Original Structure */}
-              <Card
-                className={`${
-                  colorMode === "light" ? "bg-white" : "bg-gray-800"
-                } shadow-lg rounded-md overflow-hidden animate__animated animate__fadeInRight animate__delay-3s hover:animate__pulse`}
-              >
-                <CardHeader>
-                  <Heading size="md">{getText("objectivesCardTitle")}</Heading>{" "}
-                  {/* Translated */}
-                </CardHeader>
-                <CardContent>
-                  <Text>{getText("objectivesCardText")}</Text>{" "}
-                  {/* Translated */}
-                </CardContent>
-                <CardFooter>
-                  <Link href="/About">
-                    <Button variant="ghost" colorScheme="blue">
-                      {getText("learnMoreButton")} {/* Translated */}
-                    </Button>
-                  </Link>
-                </CardFooter>
-              </Card>
-            </Flex>
-          </Box>
-          {/* Original Call to Action (commented out) */}
-          {/* <Box
-            py={16}
-            px={8}
-            textAlign="center"
-            bg={colorMode === "light" ? "blue.50" : "gray.700"}
-            className="animate__animated animate__fadeIn animate__delay-5s"
-          >
-            <Heading fontSize="3xl" mb={4}>
-              Begin Jouw Geweldige Avontuur
-            </Heading>
-            <Text fontSize="lg" mb={6}>
-              Sluit je vandaag bij ons aan en ervaar iets werkelijk opmerkelijks.
-            </Text>
-            <Button
-              size="lg"
-              colorScheme="indigo"
-              className="animate__animated animate__bounceIn animate__delay-5s hover:animate__rubberBand"
-            >
-              Doe Mee aan de Reis
-            </Button>
-          </Box> */}
-          <Footer /> {/* Original Footer placement */}
-        </Box>
-      )}
-    </div>
-  );
+      </main>
+    )}
+  </div>
+);
 }
