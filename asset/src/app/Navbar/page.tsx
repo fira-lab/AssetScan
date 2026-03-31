@@ -115,19 +115,19 @@ const Navbar = () => {
           height="100%"
         >
           <Flex align="center" gap={3}>
-            <Image
+            {/* <Image
               src={Omm}
               alt="GOMM Logo"
               width={50}
               height={35}
               style={{ objectFit: "contain" }}
-            />
+            /> */}
             <Text
               fontSize={{ base: "lg", md: "xl" }}
               fontWeight="bold"
               color="mediumslateblue"
             >
-              GOMM
+              Smart Laptop Asset Verification System
             </Text>
           </Flex>
 
@@ -159,7 +159,7 @@ const Navbar = () => {
                 {translations.about[currentLang]}
               </Button>
             </Link>
-            <Link href="/RecentMissions">
+            {/* <Link href="/RecentMissions">
               <Button
                 variant="ghost"
                 color="mediumslateblue"
@@ -169,7 +169,7 @@ const Navbar = () => {
               >
                 {translations.recentMissions[currentLang]}
               </Button>
-            </Link>
+            </Link> */}
             <Link href="/Contact">
               <Button
                 variant="ghost"
