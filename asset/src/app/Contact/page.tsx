@@ -301,7 +301,7 @@ export default function GateKeeperPage() {
                     <div><strong>Phone:</strong> {contact.phone || "—"}</div>
                     <div><strong>Asset:</strong> {contact.message || "—"}</div>
                     <div><strong>Serial:</strong> {contact.serial || "—"}</div>
-                    <div className="col-span-full"><strong>Location:</strong> {contact.location || "—"}</div>
+                    <div className="col-span-full"><strong>Department:</strong> {contact.location || "—"}</div>
                   </div>
 
                   {userRecord && (
