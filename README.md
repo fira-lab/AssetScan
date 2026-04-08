@@ -105,7 +105,7 @@ The system consists of:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/assetgate-scan-ai.git
+git clone https://github.com/fira-lab/AssetScan/tree/main
 
 # Navigate to project directory
 cd asset
