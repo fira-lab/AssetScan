@@ -148,7 +148,7 @@ const Navbar = () => {
                 {translations.home[currentLang]}
               </Button>
             </Link>
-            <Link href="/About">
+            {/* <Link href="/About">
               <Button
                 variant="ghost"
                 color="mediumslateblue"
@@ -158,7 +158,7 @@ const Navbar = () => {
               >
                 {translations.about[currentLang]}
               </Button>
-            </Link>
+            </Link> */}
             {/* <Link href="/RecentMissions">
               <Button
                 variant="ghost"
@@ -170,7 +170,7 @@ const Navbar = () => {
                 {translations.recentMissions[currentLang]}
               </Button>
             </Link> */}
-            <Link href="/Contact">
+            {/* <Link href="/Contact">
               <Button
                 variant="ghost"
                 color="mediumslateblue"
@@ -180,8 +180,8 @@ const Navbar = () => {
               >
                 {translations.contact[currentLang]}
               </Button>
-            </Link>
-            <Link href="/Donate">
+            </Link> */}
+            <Link href="/Contact">
               <Button
                 color="white"
                 variant="solid"
@@ -192,7 +192,7 @@ const Navbar = () => {
                   bg: colorMode === "light" ? "green.600" : "green.500",
                 }}
               >
-                {translations.donate[currentLang]}
+                {translations.contact[currentLang]}
               </Button>
             </Link>
             <ColorMode />
