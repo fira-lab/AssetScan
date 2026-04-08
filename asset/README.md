@@ -108,7 +108,7 @@ The system consists of:
 git clone https://github.com/yourusername/assetgate-scan-ai.git
 
 # Navigate to project directory
-cd assetgate-scan-ai
+cd asset
 
 # Install dependencies
 npm install
