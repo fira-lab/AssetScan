@@ -42,12 +42,12 @@ const Navbar = () => {
       oro: "Waa'ee",
       chn: "关于我们",
     },
-    recentMissions: {
-      en: "Recent Missions",
-      am: "የቅርብ ጊዜ ሚስዮኖች",
-      kor: "최근 선교",
-      oro: "Ergama Dhiyoo",
-      chn: "近期宣教",
+    features: {
+      en: "Features",
+      am: "ባህሪያት",
+      kor: "특징",
+      oro: "Amaloota",
+      chn: "特征",
     },
     contact: {
       en: "Contact",
@@ -137,7 +137,7 @@ const Navbar = () => {
             display={{ base: "none", md: "flex" }}
             align="center"
           >
-            <Link href="/">
+            <Link href="/#home">
               <Button
                 variant="ghost"
                 color="mediumslateblue"
@@ -148,7 +148,7 @@ const Navbar = () => {
                 {translations.home[currentLang]}
               </Button>
             </Link>
-            {/* <Link href="/About">
+            <Link href="/#about">
               <Button
                 variant="ghost"
                 color="mediumslateblue"
@@ -158,8 +158,8 @@ const Navbar = () => {
               >
                 {translations.about[currentLang]}
               </Button>
-            </Link> */}
-            {/* <Link href="/RecentMissions">
+            </Link>
+            <Link href="/#features">
               <Button
                 variant="ghost"
                 color="mediumslateblue"
@@ -167,9 +167,9 @@ const Navbar = () => {
                 px={3}
                 _hover={{ bg: colorMode === "light" ? "teal.50" : "teal.800" }}
               >
-                {translations.recentMissions[currentLang]}
+                {translations.features[currentLang]}
               </Button>
-            </Link> */}
+            </Link>
             {/* <Link href="/Contact">
               <Button
                 variant="ghost"
@@ -278,7 +278,7 @@ const Navbar = () => {
             display={{ base: "block", md: "none" }}
           >
             <Flex direction="column" gap={3}>
-              <Link href="/" passHref>
+              <Link href="/#home" passHref>
                 <Button
                   variant="ghost"
                   color="mediumslateblue"
@@ -289,7 +289,7 @@ const Navbar = () => {
                   {translations.home[currentLang]}
                 </Button>
               </Link>
-              <Link href="/About" passHref>
+              <Link href="/#about" passHref>
                 <Button
                   variant="ghost"
                   color="mediumslateblue"
@@ -300,7 +300,7 @@ const Navbar = () => {
                   {translations.about[currentLang]}
                 </Button>
               </Link>
-              <Link href="/RecentMissions" passHref>
+              <Link href="/#features" passHref>
                 <Button
                   variant="ghost"
                   color="mediumslateblue"
@@ -308,7 +308,7 @@ const Navbar = () => {
                   justifyContent="flex-start"
                   onClick={closeMenu}
                 >
-                  {translations.recentMissions[currentLang]}
+                  {translations.features[currentLang]}
                 </Button>
               </Link>
               <Link href="/Contact" passHref>

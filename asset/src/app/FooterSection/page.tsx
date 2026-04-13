@@ -15,7 +15,7 @@ const FooterSection = () => {
             <h3 className="font-heading font-bold text-lg mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm text-primary-foreground/60">
               <li><a href="#home" className="hover:text-accent transition-colors">Home</a></li>
-              <li><a href="#overview" className="hover:text-accent transition-colors">About</a></li>
+              <li><a href="#about" className="hover:text-accent transition-colors">About</a></li>
               <li><a href="#features" className="hover:text-accent transition-colors">Features</a></li>
             </ul>
           </div>

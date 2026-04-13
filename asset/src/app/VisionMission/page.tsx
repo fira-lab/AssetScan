@@ -25,7 +25,7 @@ const cards = [
 const VisionMissionSection = () => {
   return (
     // Changed bg-muted/50 to !bg-white to force light mode look
-    <section className="section-padding !bg-white">
+    <section id="about" className="section-padding !bg-white">
       <div className="container mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
