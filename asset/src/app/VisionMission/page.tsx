@@ -1,3 +1,4 @@
+"use client"
 import { motion } from "framer-motion";
 import { Eye, Target, CheckCircle } from "lucide-react";
 

@@ -1,3 +1,4 @@
+"use client"
 import { motion } from "framer-motion";
 import overviewImg from "@/app/Images/system-overview.jpg";
 import Image from "next/image";
