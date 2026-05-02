@@ -1,3 +1,4 @@
+"use client"
 import { motion } from "framer-motion";
 import featureReg from "@/app/Images/feature-registration.jpg";
 import featureQr from "@/app/Images/feature-qrcode.jpg";
