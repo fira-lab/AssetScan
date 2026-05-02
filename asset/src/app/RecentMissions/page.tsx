@@ -32,8 +32,7 @@ import {
   FaArrowLeft,
   FaArrowRight,
 } from "react-icons/fa";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+
 import Loader from "../Loader/page";
 
 interface MissionData {

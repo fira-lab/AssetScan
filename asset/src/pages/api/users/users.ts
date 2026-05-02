@@ -1,7 +1,35 @@
-"use server";
+// Removed "use server"; directive - it's not applicable for /pages/api routes
 import type { NextApiRequest, NextApiResponse } from "next";
-import connectDB from "@/types/db";
-import User from "@/models/User";
+import connectDB from "@/types/db"; // Ensure this path is correct
+import User from "@/models/User";    // Ensure this path is correct
+// import { Document } from 'mongoose'; // You might need this for proper User type if using Mongoose
+
+// Define types for request body and response for clarity
+interface UserRequestBody {
+  name: string;
+  email: string;
+  phone?: string;
+  role?: string;
+  status?: string;
+  // Add other properties that a new user might have
+}
+
+interface UserUpdateBody {
+  id?: string;
+  identifier?: string; // Using email as identifier
+  // Any field from UserRequestBody can be here for update
+  name?: string;
+  email?: string;
+  phone?: string;
+  role?: string;
+  status?: string;
+  // If you allow $push to history, specify that structure too
+  $push?: {
+    history?: any; // Define a proper type for history items if possible
+  };
+  // Other MongoDB update operators like $set, etc.
+}
+
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,8 +39,8 @@ export default async function handler(
 
   try {
     await connectDB();
-  } catch (error) {
-    console.error("DB Connection Error:", error);
+  } catch (dbError) { // Changed 'error' to 'dbError' to avoid conflict and be more specific
+    console.error("DB Connection Error:", dbError);
     return res.status(500).json({ error: "Failed to connect to database" });
   }
 
@@ -30,10 +58,12 @@ export default async function handler(
     // ─── POST new user ──────────────────────────────────
     case "POST":
       try {
-        const newUser = new User(body);
+        // Explicitly cast req.body to UserRequestBody
+        const newUserBody: UserRequestBody = body; 
+        const newUser = new User(newUserBody);
         await newUser.save();
         return res.status(201).json(newUser);
-      } catch (error: any) {
+      } catch (error: any) { // Kept 'any' here as Mongoose validation errors can be complex
         console.error("Error creating user:", error);
         return res.status(400).json({ error: error.message || "Failed to create user" });
       }
@@ -41,10 +71,11 @@ export default async function handler(
     // ─── PUT (update) – now supports $push to history ───
     case "PUT":
       try {
-        const { id, identifier, ...updateFields } = body;
+        // Explicitly cast req.body to UserUpdateBody
+        const { id, identifier, ...updateFields }: UserUpdateBody = body; 
 
         // Allow lookup by _id OR by email (owner ID)
-        let findQuery;
+        let findQuery: { _id?: string; email?: string; }; // Explicitly type findQuery
         if (id) {
           findQuery = { _id: id };
         } else if (identifier) {
@@ -64,7 +95,7 @@ export default async function handler(
         }
 
         return res.status(200).json(updatedUser);
-      } catch (error: any) {
+      } catch (error: any) { // Kept 'any' here as Mongoose validation/update errors can be complex
         console.error("Error updating user:", error);
         return res.status(400).json({ error: error.message || "Failed to update user" });
       }
@@ -72,8 +103,9 @@ export default async function handler(
     // ─── DELETE ─────────────────────────────────────────
     case "DELETE":
       try {
+        // Query parameters are typically strings, but Mongoose will convert _id
         const { id } = query;
-        if (!id) return res.status(400).json({ error: "id is required" });
+        if (!id || typeof id !== 'string') return res.status(400).json({ error: "id is required and must be a string" });
 
         const deleted = await User.findByIdAndDelete(id);
         if (!deleted) {

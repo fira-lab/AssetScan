@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, ChangeEvent } from "react";
-import { QRCodeCanvas } from "qrcode.react"; // Changed to Canvas for downloading/sharing
+import React, { useState, useEffect, ChangeEvent, useCallback } from "react"; // Added useCallback
+import { QRCodeCanvas } from "qrcode.react";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import {
@@ -27,8 +27,9 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "../../ui/pagination";
-import { useToast } from "@chakra-ui/react";
+import { useToast } from "@chakra-ui/react"; // Assuming Chakra UI toast is correctly set up
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import Image from "next/image"; // Added for <img> warning fix if present elsewhere
 
 // --- Define Interfaces ---
 interface Contact {
@@ -36,6 +37,7 @@ interface Contact {
   name: string;
   email: string;
   phone?: string;
+  // Add other properties if they exist in your contact data
 }
 
 interface User {
@@ -43,12 +45,18 @@ interface User {
   name: string;
   role?: string;
   status?: string;
+  email?: string; // Assuming 'email' is used as 'Serial Number' or identifier for users
+  // Add other properties if they exist in your user data
 }
+
+// Union type for items that can be displayed
+type DisplayItem = Contact | User;
 
 export default function QRCodeGenerator() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [filteredData, setFilteredData] = useState<any[]>([]);
+  // Use DisplayItem[] for filteredData
+  const [filteredData, setFilteredData] = useState<DisplayItem[]>([]); 
   
   // UI States
   const [activeTab, setActiveTab] = useState<"contacts" | "users">("contacts");
@@ -62,11 +70,8 @@ export default function QRCodeGenerator() {
   const itemsPerPage = 10;
 
   // --- Fetch Data ---
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  // Memoize fetchData with useCallback to make it stable for useEffect dependency
+  const fetchData = useCallback(async () => {
     try {
       const [contactRes, userRes] = await Promise.all([
         fetch("/api/contact/contact"),
@@ -94,7 +99,11 @@ export default function QRCodeGenerator() {
         isClosable: true,
       });
     }
-  };
+  }, [toast]); // Added toast to useCallback dependencies
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]); // Now fetchData is a stable dependency
 
   // --- Handle Tab Switch ---
   const handleTabSwitch = (tab: "contacts" | "users") => {
@@ -109,7 +118,7 @@ export default function QRCodeGenerator() {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
     
-    const sourceData = activeTab === "contacts" ? contacts : users;
+    const sourceData: DisplayItem[] = activeTab === "contacts" ? contacts : users; // Explicitly type
     const filtered = sourceData.filter(
       (item) => item.name && item.name.toLowerCase().includes(term)
     );
@@ -119,7 +128,8 @@ export default function QRCodeGenerator() {
   };
 
   // --- Handle QR Generation ---
-  const generateQR = (item: any) => {
+  // Explicitly type `item` parameter
+  const generateQR = (item: DisplayItem) => { 
     const dataToEncode = JSON.stringify({
       type: activeTab,
       ...item
@@ -162,13 +172,11 @@ export default function QRCodeGenerator() {
     if (!canvas) return;
 
     try {
-      // Convert canvas to a file object
       const dataUrl = canvas.toDataURL("image/png");
       const blob = await (await fetch(dataUrl)).blob();
       const safeFileName = selectedItemName ? selectedItemName.replace(/\s+/g, "_") : "QR_Code";
       const file = new File([blob], `${safeFileName}.png`, { type: blob.type });
 
-      // Check if browser supports sharing files natively
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           title: `QR Code for ${selectedItemName}`,
@@ -183,7 +191,6 @@ export default function QRCodeGenerator() {
           position: "top",
         });
       } else {
-        // Fallback for browsers that don't support file sharing
         toast({
           title: "Sharing not supported",
           description: "Your browser does not support native file sharing. Please use the Download button instead.",
@@ -195,7 +202,6 @@ export default function QRCodeGenerator() {
       }
     } catch (error) {
       console.error("Error sharing:", error);
-      // Don't show an error toast if the user simply cancelled the share dialog
       if ((error as Error).name !== "AbortError") {
         toast({
           title: "Error sharing QR Code",
@@ -234,6 +240,7 @@ export default function QRCodeGenerator() {
         
         <CardContent>
           <div className="rounded-[10px] bg-white px-4 py-6 shadow-1 dark:bg-gray-dark dark:shadow-card sm:px-7.5 bg-gradient-to-r from-purple-500/10 group-hover:from-purple-500/20 transition-all duration-300">
+            {/* Using Next.js's <style jsx> is fine for component-specific styles */}
             <style jsx>{`
               .scroll-wrapper {
                 overflow-x: auto;
@@ -291,9 +298,10 @@ export default function QRCodeGenerator() {
                         <p className="font-semibold text-dark dark:text-white">
                           {item.name}
                         </p>
-                        {activeTab === "users" && item.status && (
+                        {/* Type guard to check if item is a User */}
+                        {activeTab === "users" && (item as User).status && ( 
                           <span className="rounded-full px-2 py-0.5 text-xs bg-blue-100 text-blue-800">
-                            {item.status}
+                            {(item as User).status}
                           </span>
                         )}
                       </div>
@@ -301,12 +309,12 @@ export default function QRCodeGenerator() {
                       <div className="grid gap-y-1 text-sm text-gray-600 dark:text-gray-300 mb-4">
                         {activeTab === "contacts" ? (
                           <>
-                            <p><strong>AMU_Id:</strong> {item.email}</p>
-                            <p><strong>Phone:</strong> {item.phone || "N/A"}</p>
+                            <p><strong>AMU_Id:</strong> {(item as Contact).email}</p>
+                            <p><strong>Phone:</strong> {(item as Contact).phone || "N/A"}</p>
                           </>
                         ) : (
                           <>
-                            <p><strong>Serial Number:</strong> {item.email || "N/A"}</p>
+                            <p><strong>Serial Number:</strong> {(item as User).email || "N/A"}</p>
                           </>
                         )}
                       </div>
@@ -361,16 +369,16 @@ export default function QRCodeGenerator() {
                           
                           {activeTab === "contacts" ? (
                             <>
-                              <TableCell>{item.email}</TableCell>
-                              <TableCell>{item.phone || "N/A"}</TableCell>
+                              <TableCell>{(item as Contact).email}</TableCell>
+                              <TableCell>{(item as Contact).phone || "N/A"}</TableCell>
                             </>
                           ) : (
                             <>
-                              <TableCell>{item.email || "N/A"}</TableCell>
+                              <TableCell>{(item as User).email || "N/A"}</TableCell>
                               <TableCell>
-                                {item.status ? (
+                                {(item as User).status ? (
                                    <span className="rounded-full px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                     {item.status}
+                                     {(item as User).status}
                                    </span>
                                 ) : "N/A"}
                               </TableCell>
@@ -459,7 +467,6 @@ export default function QRCodeGenerator() {
 
                   {qrCodeData && (
                     <div className="p-4 bg-white border-4 border-gray-100 rounded-xl shadow-lg mb-6">
-                      {/* Switched to QRCodeCanvas and added ID */}
                       <QRCodeCanvas
                         id="qr-code-canvas"
                         value={qrCodeData}
@@ -470,7 +477,6 @@ export default function QRCodeGenerator() {
                     </div>
                   )}
 
-                  {/* Updated DialogFooter with Download and Share buttons */}
                   <DialogFooter className="w-full flex flex-col sm:flex-row gap-2 sm:justify-center">
                     <Button
                       type="button"
