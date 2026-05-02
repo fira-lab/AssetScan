@@ -1,3 +1,4 @@
+"use client"
 import { motion } from "framer-motion";
 import { QrCode, ShieldCheck } from "lucide-react";
 import heroBg from "@/app/Images/hero-bg.jpg";
