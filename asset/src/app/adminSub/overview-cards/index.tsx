@@ -200,7 +200,7 @@ export default function OverviewCardsGroup() {
                 htmlFor="edit-views"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
-                Total Souls Who Heard The Good News
+                Total Assets Registered
               </label>
               <Input
                 id="edit-views"

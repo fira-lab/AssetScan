@@ -47,7 +47,7 @@ export default function Home({ searchParams }: PropsType) {
     >
       <main className="container mx-auto p-4 md:p-6 xl:p-1 space-y-8">
         {/* Overview Section */}
-        <Suspense
+        {/* <Suspense
           fallback={
             <div className="text-center text-gray-500 dark:text-gray-400 animate-pulse">
               Loading Dashboard...
@@ -55,7 +55,7 @@ export default function Home({ searchParams }: PropsType) {
           }
         >
           <OverviewCardsGroup />
-        </Suspense>
+        </Suspense> */}
 
         {/* Dashboard Cards Grid */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2">
@@ -123,7 +123,7 @@ export default function Home({ searchParams }: PropsType) {
             </CardContent>
           </Card>
 
-          <Card className="sm:col-span-2 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none">
+          {/* <Card className="sm:col-span-2 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none">
             <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-transparent group-hover:from-orange-500/20 transition-all duration-300"></div>
             <CardHeader>
               <CardTitle className="flex items-center gap-3 text-lg font-semibold text-orange-600 dark:text-orange-300">
@@ -134,9 +134,9 @@ export default function Home({ searchParams }: PropsType) {
             <CardContent>
               <MissionsPage />
             </CardContent>
-          </Card>
+          </Card> */}
 
-          <Card className="sm:col-span-2 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none">
+          {/* <Card className="sm:col-span-2 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none">
             <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-transparent group-hover:from-red-500/20 transition-all duration-300"></div>
             <CardHeader>
               <CardTitle className="flex items-center gap-3 text-lg font-semibold text-red-600 dark:text-red-300">
@@ -147,7 +147,7 @@ export default function Home({ searchParams }: PropsType) {
             <CardContent>
               <DonateUsers />
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       </main>
     </div>
