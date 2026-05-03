@@ -50,12 +50,12 @@ const Navbar = () => {
       chn: "近期宣教",
     },
     contact: {
-      en: "Contact",
-      am: "አግኙን",
-      kor: "연락처",
-      oro: "Nu Qunnami",
-      chn: "联系我们",
-    },
+  "en": "VerifyAsset",
+  "am": "ንብረትን ያረጋግጡ",
+  "kor": "자산 확인",
+  "oro": "Qabeenya Mirkaneessi",
+  "chn": "验证资产"
+},
     donate: {
       en: "Donate",
       am: "ልገሳ",

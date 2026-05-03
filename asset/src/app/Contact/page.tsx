@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";                    // ← Added
 import { Button, Card, CardHeader, Input, useToast } from "@chakra-ui/react";
 import { CardContent, CardTitle } from "@/components/ui/card";
 import {
@@ -27,9 +28,6 @@ import {
 } from "@/components/ui/table";
 import { formatDistanceToNow, parseISO } from "date-fns";
 
-// ────────────────────────────────────────────────
-// Interfaces (unchanged)
-// ────────────────────────────────────────────────
 interface Contact {
   _id: string;
   name: string;
@@ -120,7 +118,7 @@ export default function GateKeeperPage() {
   const handleApprove = async () => {
     if (!contact) return;
 
-    const newEntry = {
+    const newEntry: HistoryEntry = {
       timestamp: new Date().toISOString(),
       action: direction,
       status: "Approved",
@@ -190,11 +188,12 @@ export default function GateKeeperPage() {
       }
 
       throw new Error("Operation failed");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
+      const message = err instanceof Error ? err.message : "Unknown error";
       toast({
         title: "Failed to record movement",
-        description: err.message || "Unknown error",
+        description: message,
         status: "error",
       });
     } finally {
@@ -211,7 +210,6 @@ export default function GateKeeperPage() {
     });
   };
 
-  // ─── Helper: detailed last movement text ────────────────
   const getLastMovementText = () => {
     if (!userRecord?.history?.length) {
       return "No gate movement recorded yet";
@@ -228,7 +226,6 @@ export default function GateKeeperPage() {
       return `Last exited the gate: ${timeAgo}`;
     }
 
-    // fallback for any other action type
     return `Last movement (${last.action}): ${timeAgo}`;
   };
 
@@ -271,14 +268,19 @@ export default function GateKeeperPage() {
             <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-gray-950 p-6 md:p-10 shadow-lg max-w-5xl mx-auto">
               <div className="flex flex-col md:flex-row gap-10 items-start">
                 {contact.imageUrl && (
-                  <img
-                    src={contact.imageUrl}
-                    alt={contact.name}
-                    className="w-56 h-56 object-cover rounded-2xl border-4 border-emerald-500 shadow-xl flex-shrink-0"
-                    onError={(e) => {
-                      e.currentTarget.src = "https://via.placeholder.com/224?text=No+Photo";
-                    }}
-                  />
+                  <div className="relative w-56 h-56 flex-shrink-0">
+                    <Image
+                      src={contact.imageUrl}
+                      alt={contact.name}
+                      fill
+                      className="object-cover rounded-2xl border-4 border-emerald-500 shadow-xl"
+                      onError={(e) => {
+                        // Fallback using native img for placeholder (or use a local placeholder image)
+                        const target = e.currentTarget as HTMLImageElement;
+                        target.src = "https://via.placeholder.com/224?text=No+Photo";
+                      }}
+                    />
+                  </div>
                 )}
 
                 <div className="flex-1 space-y-6">
@@ -359,7 +361,7 @@ export default function GateKeeperPage() {
         </CardContent>
       </div>
 
-      {/* HISTORY MODAL – unchanged */}
+      {/* HISTORY MODAL */}
       <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
         <DialogContent className="max-w-3xl bg-white dark:bg-gray-900">
           <DialogHeader>

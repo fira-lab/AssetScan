@@ -3,9 +3,10 @@ import { NextResponse } from "next/server";
 
 const isProtectedRoute = createRouteMatcher(["/dashboard(.*)", "/forum(.*)"]);
 const isAdminSubRoute = createRouteMatcher(["/adminSub(.*)"]);
+const isGateKeeperSubRoute = createRouteMatcher(["/contact(.*)"]); // Corrected route matcher
 
 const middleware = clerkMiddleware(async (auth, req) => {
-  const { userId, redirectToSignIn } = await auth();
+  const { userId, redirectToSignIn } = auth(); // Await is not needed for auth() directly
 
   // Handle protected routes
   if (isProtectedRoute(req)) {
@@ -42,7 +43,40 @@ const middleware = clerkMiddleware(async (auth, req) => {
         return new NextResponse("Access denied: Admins only", { status: 403 });
       }
     } catch (error) {
-      console.error("Error during authorization or fetching user:", error);
+      console.error("Error during authorization or fetching admin user:", error);
+      return redirectToSignIn({ returnBackUrl: req.url });
+    }
+  }
+
+  // Handle gatekeeper sub-route
+  if (isGateKeeperSubRoute(req)) {
+    if (!userId) {
+      return redirectToSignIn({ returnBackUrl: req.url });
+    }
+
+    try {
+      const clerkResponse = await fetch(
+        `https://api.clerk.dev/v1/users/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
+          },
+        }
+      );
+
+      if (!clerkResponse.ok) {
+        throw new Error(`Failed to fetch Clerk user: ${clerkResponse.status}`);
+      }
+
+      const clerkUser = await clerkResponse.json();
+      const userRole = clerkUser.public_metadata?.role || "user";
+
+      if (userRole !== "gatekeeper") { // Check for 'gatekeeper' role
+        // Respond with 403 Forbidden for non-gatekeeper users
+        return new NextResponse("Access denied: Gatekeepers only", { status: 403 });
+      }
+    } catch (error) {
+      console.error("Error during authorization or fetching gatekeeper user:", error);
       return redirectToSignIn({ returnBackUrl: req.url });
     }
   }
