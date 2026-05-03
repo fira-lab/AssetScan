@@ -1,24 +1,14 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import {
-  Box,
-  Flex,
-  Heading,
-  Text,
-  Button,
-  VStack,
+ 
   useBreakpointValue,
 } from "@chakra-ui/react";
 // Using the specific Card components from the original code
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card"; // Assuming this path is correct
+
 import { useColorMode } from "@/components/ui/color-mode";
 
-import Image from "next/image";
+
 
 // Image Imports (ensure paths are correct)
 // import OmmHome from "./Images/OmmHome.jpg";
@@ -53,7 +43,6 @@ import Jimma7 from "./Images/Jimma7.jpg";
 import holy from "./Images/holy.png";
 
 // Component Imports (ensure paths are correct)
-import Footer from "./Footer/page";
 
 import Loader from "./Loader/page";
 import { useLanguageStore } from "./LanguageStore/languageStore";
