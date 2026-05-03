@@ -47,14 +47,14 @@ import FooterSection from "./FooterSection/page";
 
 // --- Comprehensive Translations Object ---
 
-interface TranslationItem {
-  en: string;
-  am: string;
-  oro: string;
-  kor: string;
-  chn: string;
-  default?: string;
-}
+// interface TranslationItem {
+//   en: string;
+//   am: string;
+//   oro: string;
+//   kor: string;
+//   chn: string;
+//   default?: string;
+// }
 
 // interface Translations {
 //   [key: string]: TranslationItem;
