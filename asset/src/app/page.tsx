@@ -1,18 +1,11 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-import {
- 
-  useBreakpointValue,
-} from "@chakra-ui/react";
+// import { useBreakpointValue } from "@chakra-ui/react"; // Removed as useBreakpointValue is not used
 // Using the specific Card components from the original code
-
-import { useColorMode } from "@/components/ui/color-mode";
-
-
+// import { useColorMode } from "@/components/ui/color-mode"; // Removed as useColorMode is not used
 
 // Image Imports (ensure paths are correct)
-// import OmmHome from "./Images/OmmHome.jpg";
-import OmmHome from "./Images/AssetScan.png";
+import OmmHome from "./Images/AssetScan.png"; // Kept if it's meant to be used for something not immediately apparent in the provided JSX
 import mm1 from "./Images/mm1.jpg";
 import mm3 from "./Images/mm3.png";
 import omm4 from "./Images/omm4.jpg";
@@ -40,13 +33,12 @@ import Jimma4 from "./Images/Jimma4.jpg";
 import Jimma5 from "./Images/Jimma5.jpg";
 import Jimma6 from "./Images/Jimma6.jpg";
 import Jimma7 from "./Images/Jimma7.jpg";
-import holy from "./Images/holy.png";
+// import holy from "./Images/holy.png"; // Removed as it's not used
 
 // Component Imports (ensure paths are correct)
-
 import Loader from "./Loader/page";
 import { useLanguageStore } from "./LanguageStore/languageStore";
-import Link from "next/link";
+// import Link from "next/link"; // Removed as it's not used
 import HeroSection from "./HeroSection/page";
 import SystemOverview from "./SystemOverview/page";
 import StatsSection from "./StatsSection/page";
@@ -54,8 +46,6 @@ import FeaturesSection from "./Features/page";
 import SecurityHighlight from "./SecurityHighlight/page";
 import VisionMissionSection from "./VisionMission/page";
 import FooterSection from "./FooterSection/page";
-
-// import { RegionLabels } from "./admin/(home)/_components/region-labels"; // Uncomment if used
 
 // --- Comprehensive Translations Object (Same as before) ---
 
@@ -284,7 +274,7 @@ const translations: Translations = {
   },
   missionSectionDesc2023Alemgena: {
     en: "During a vibrant week from August 28th to September 3rd, 2023, the town of Alemgena was touched by dedicated mission teams. These individuals poured their energy into forging personal connections through one-on-one evangelism, sharing messages of hope directly with the community. Their compassion extended tangibly as they actively shared love and support with the local poor. Amidst these heartfelt interactions, the teams also carefully documented the inspiring moments of transformation they witnessed, capturing stories of change and renewal.",
-    am: "ከነሐሴ 28 እስከ መስከረም 3, 2023 ባሉት ቀናት ውስጥ፣ የአለምገና ከተማ ራሳቸውን በሰጡ ሚስዮናዊ ቡድኖች ልብ ተነክቶ ነበር። እነዚህ ግለሰቦች በአንድ ለአንድ የወንጌል አገልግሎት የግል ግንኙነቶችን በመፍጠርና የተስፋ መልዕክቶችን በቀጥታ በማህበረሰቡ በማካፈል ጉልበታቸውን አፍስሰዋል። ርህራሄያቸውም በአካባቢው ለሚገኙ ድሆች ፍቅርንና ድጋፍን በንቃት በማካፈል በተጨባጭ ታይቷል። በእነዚህ ልብ የሚነኩ ግንኙነቶች መካከል፣ ቡድኖቹ የተመለከቷቸውን አስደናቂ የለውጥ ጊዜያት በጥንቃቄ በመመዝገب፣ የለውጥና የመታደስ ታሪኮችን አስቀርተዋል።",
+    am: "ከነሐሴ 28 እስከ መስከረም 3, 2023 ባሉት ቀናት ውስጥ፣ የአለምገና ከተማ ራሳቸውን በሰጡ ሚስዮናዊ ቡድኖች ልብ ተነክቶ ነበር። እነዚህ ግለሰቦች በአንድ ለአንድ የወንጌል አገልግሎት የግል ግንኙነቶችን በመፍጠርና የተስፋ መልዕክቶችን በቀጥታ በማህበረሰቡ በማካፈል ጉልበታቸውን አፍስሰዋል። ርህራሄያቸውም በአካባቢው ለሚገኙ ድሆች ፍቅርንና ድጋፍን በንቃት በማካፈል በተጨባጭ ታይቷል። በእነዚህ ልብ የሚነኩ ግንኙነቶች መካከል፣ ቡድኖቹ የተመለከቷቸውን አስደናቂ የለውጥ ጊዜያት በጥንቃቄ በመመዝገብ፣ የለውጥና የመታደስ ታሪኮችን አስቀርተዋል።",
     oro: "Torban ho’aa Hagayya 28 irraa hanga Fulbaana 3, 2023tti, magaalaan Aleemganaa gareewwan ergamaa of kennaniin tuqamteetti. Namoonni kunniin humna isaanii nama tokkoof tokkoon wangeela lallabuudhaan walqunnamtii dhuunfaa uumuu fi ergaa abdii kallattiidhaan hawaasaaf hiruutti gumaachaniiru. Raawwannaan isaanii kan mul’ate, hiyyeeyyii naannichaatiif jaalalaa fi deggersa ifatti gochuudhaan ture. Walqunnamtiiwwan garaa nama tuqan kana gidduutti, gareewwan yeroowwan jijjiiramaa dinqisiisoo argatan sirriitti galmeessuudhaan, seenaawwan jijjiiramaa fi haaromsaa waraabaniiru.",
     kor: "2023년 8월 28일부터 9월 3일까지 이어진 활기찬 한 주 동안, 알렘게나 마을은 헌신적인 선교팀들의 따뜻한 손길을 경험했습니다. 이들은 일대일 전도를 통해 개인적인 관계를 형성하고 지역 사회에 직접 희망의 메시지를 나누는 데 온 힘을 쏟았습니다. 그들의 깊은 연민은 현지 빈민들에게 적극적으로 사랑과 지원을 나누는 가시적인 행동으로 확장되었습니다. 이러한 마음 따뜻한 교류 속에서, 팀들은 목격한 감동적인 변화의 순간들을 세심하게 기록하여 변화와 새로움의 이야기들을 소중히 담아냈습니다.",
     chn: "在2023年8月28日至9月3日这个充满活力的一周里，阿莱姆格纳镇感受到了专注奉献的宣教团队带来的深刻影响。这些成员倾注心力，通过一对一的传福音建立起真挚的个人联系，直接向社区传递希望的讯息。他们的同情心化为实际行动，积极地与当地的贫困者分享爱与支持。在这些感人至深的互动之中，团队还细致地记录下他们所见证的每一个鼓舞人心的转变时刻，捕捉了生命得以改变与焕新的宝贵故事。",
@@ -572,6 +562,7 @@ const translations: Translations = {
 };
 
 // --- Image Data Structure (Same as before) ---
+// Kept for completeness, even if not directly rendered in the provided JSX
 const missionImageData = {
   medical2025: [
     { src: omm6, descKey: "descYoungMissionariesPraying1" },
@@ -614,8 +605,8 @@ type LanguageCode = "en" | "am" | "oro" | "kor" | "chn";
 const validLanguageCodes: LanguageCode[] = ["en", "am", "oro", "kor", "chn"];
 
 export default function HomePage() {
-  const { colorMode } = useColorMode();
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  // const { colorMode } = useColorMode(); // Removed as it's not used
+  // const isMobile = useBreakpointValue({ base: true, md: false }); // Removed as it's not used
   const { selectedLanguage } = useLanguageStore();
 
   // State hooks remain the same
@@ -624,7 +615,7 @@ export default function HomePage() {
   const [baptized, setBaptized] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [loading, setLoading] = useState(true); // Keep for initial render state
-  const statsRef = useRef(null);
+  const statsRef = useRef<HTMLDivElement>(null); // Specify type for useRef
   const [error, setError] = useState<string | null>(null);
 
   // getText helper function (same as before)
@@ -662,21 +653,23 @@ export default function HomePage() {
           repented: data.users?.value || 1234,
           baptized: data.products?.value || 50,
         };
+        // Update states to trigger the counting animation
         setReceivedJesus(targetNumbers.receivedJesus);
         setRepented(targetNumbers.repented);
         setBaptized(targetNumbers.baptized);
         setLoading(false);
-      } catch (err) {
-        console.log(err);
+      } catch (err: any) { // Explicitly type 'err' as 'any' or 'Error'
+        console.error(err); // Changed to console.error
         setLoading(false);
-        setError(error);
+        setError(err.message || "Failed to fetch data"); // Use err.message for more detail
+        // Set fallback numbers if API fails
         setReceivedJesus(12330);
         setRepented(1234);
         setBaptized(50);
       }
     };
     fetchData();
-  }, []);
+  }, [error]); // Added 'error' to the dependency array to re-run on error
 
   // Intersection Observer (single instance)
   useEffect(() => {
@@ -702,46 +695,65 @@ export default function HomePage() {
   // Counting animation (updated)
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
-    if (isVisible && !loading) {
+    // Only run animation if visible, not loading, and target numbers are not zero (to avoid division by zero if initial state is 0)
+    if (isVisible && !loading && (receivedJesus > 0 || repented > 0 || baptized > 0)) {
       const duration = 2000;
       const interval = 50;
       const steps = Math.floor(duration / interval);
+      
+      // Use temporary target values for calculations to avoid state mutation issues during animation
+      const targetReceivedJesus = receivedJesus;
+      const targetRepented = repented;
+      const targetBaptized = baptized;
+
       const increments = {
-        receivedJesus: receivedJesus / steps,
-        repented: repented / steps,
-        baptized: baptized / steps,
+        receivedJesus: targetReceivedJesus / steps,
+        repented: targetRepented / steps,
+        baptized: targetBaptized / steps,
       };
-      const current = {
+      let current = { // Use 'let' for mutable current values
         receivedJesus: 0,
         repented: 0,
         baptized: 0,
       };
+
       const updateCounts = () => {
         let finished = true;
-        if (current.receivedJesus < receivedJesus) {
+
+        if (current.receivedJesus < targetReceivedJesus) {
           current.receivedJesus = Math.min(
             current.receivedJesus + increments.receivedJesus,
-            receivedJesus
+            targetReceivedJesus
           );
           finished = false;
+        } else {
+          current.receivedJesus = targetReceivedJesus; // Ensure it reaches the exact target
         }
-        if (current.repented < repented) {
+
+        if (current.repented < targetRepented) {
           current.repented = Math.min(
             current.repented + increments.repented,
-            repented
+            targetRepented
           );
           finished = false;
+        } else {
+          current.repented = targetRepented; // Ensure it reaches the exact target
         }
-        if (current.baptized < baptized) {
+
+        if (current.baptized < targetBaptized) {
           current.baptized = Math.min(
             current.baptized + increments.baptized,
-            baptized
+            targetBaptized
           );
           finished = false;
+        } else {
+          current.baptized = targetBaptized; // Ensure it reaches the exact target
         }
+
         setReceivedJesus(Math.floor(current.receivedJesus));
         setRepented(Math.floor(current.repented));
         setBaptized(Math.floor(current.baptized));
+
         if (finished && timer) {
           clearInterval(timer);
           timer = null;
@@ -752,42 +764,34 @@ export default function HomePage() {
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [isVisible, loading, receivedJesus, repented, baptized]);
-
-  // Removed the API fetch for overviewData as it wasn't used for counters
+  }, [isVisible, loading, receivedJesus, repented, baptized]); // Dependencies for animation
 
   // --- Return JSX with original UI structure and translations ---
   return (
-  <div className="min-h-screen bg-transparent"> 
-    {loading ? (
-      <Loader />
-    ) : (
-      /* REPLACE the <Box> with a standard <div>. 
-         We use 'bg-slate-50' (or whatever Lovable used) 
-         to ensure the whole page has a clean base.
-      */
-      <main className="relative w-full overflow-x-hidden bg-[#0a0a0a]">
-        
-        {/* 1. Hero Section (Now has room to breathe) */}
-        <HeroSection />
+    <div className="min-h-screen bg-transparent">
+      {loading ? (
+        <Loader />
+      ) : (
+        <main className="relative w-full overflow-x-hidden bg-[#0a0a0a]">
+          {/* 1. Hero Section (Now has room to breathe) */}
+          <HeroSection />
 
-        {/* 2. Language Selector - Keep as a standard div if you want to use it */}
-        <div className="absolute top-4 right-4 z-50">
-           {/* Selector code here */}
-        </div>
+          {/* 2. Language Selector - Keep as a standard div if you want to use it */}
+          <div className="absolute top-4 right-4 z-50">
+            {/* Selector code here */}
+          </div>
 
-        {/* 3. The rest of your Lovable Sections */}
-        <SystemOverview />
-        <StatsSection />
-        <FeaturesSection />
-        <SecurityHighlight />
-        <VisionMissionSection />
-        
-        {/* 4. Footer */}
-        <FooterSection />
+          {/* 3. The rest of your Lovable Sections */}
+          <SystemOverview />
+          <StatsSection />
+          <FeaturesSection />
+          <SecurityHighlight />
+          <VisionMissionSection />
 
-      </main>
-    )}
-  </div>
-);
+          {/* 4. Footer */}
+          <FooterSection />
+        </main>
+      )}
+    </div>
+  );
 }
