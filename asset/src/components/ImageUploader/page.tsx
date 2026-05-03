@@ -2,10 +2,11 @@
 
 "use server";
 
-import { redirect } from "next/navigation";
+import { redirect } from "next/navigation"; // Keep this if you plan to use it for redirection after image upload, otherwise remove it.
 import { v2 as cloudinary } from "cloudinary";
-import { nanoid } from "nanoid";
-import { auth, currentUser } from "@clerk/nextjs/server";
+// import { nanoid } from "nanoid"; // Removed: 'nanoid' is defined but never used.
+// import { currentUser } from "@clerk/nextjs/server"; // Removed: 'currentUser' is defined but never used.
+import { auth } from "@clerk/nextjs/server";
 import connectDB from "@/types/db";
 import Image from "@/models/Image"; // Assuming you still use this for other things
 
@@ -22,7 +23,7 @@ cloudinary.config({
  */
 export async function uploadImage(formData: FormData) {
   try {
-    const { userId } = await auth();
+    const { userId } = auth(); // Use auth() directly as currentUser is not needed here
     if (!userId) {
       throw new Error("Unauthorized: Please sign in first");
     }
@@ -41,7 +42,7 @@ export async function uploadImage(formData: FormData) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const uploadResponse: any = await new Promise((resolve, reject) => {
+    const uploadResponse: { secure_url: string } = await new Promise((resolve, reject) => { // Specified type for uploadResponse
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: "user_profiles", // A specific folder for profile pictures
@@ -49,7 +50,7 @@ export async function uploadImage(formData: FormData) {
         },
         (error, result) => {
           if (error) reject(error);
-          else resolve(result);
+          else resolve(result as { secure_url: string }); // Cast result to the expected type
         }
       );
       uploadStream.end(buffer);
@@ -60,11 +61,12 @@ export async function uploadImage(formData: FormData) {
       url: uploadResponse.secure_url,
     };
 
-  } catch (err: any) {
+  } catch (err: unknown) { // Use 'unknown' for catch block errors
     console.error("Error uploading single image:", err);
+    const errorMessage = err instanceof Error ? err.message : "Failed to upload image";
     return {
       success: false,
-      error: err.message || "Failed to upload image",
+      error: errorMessage,
     };
   }
 }
@@ -74,11 +76,14 @@ export async function uploadImage(formData: FormData) {
  * Get paginated images for the current user
  */
 export const getUserImagesFromDb = async (page: number = 1, limit: number = 12) => {
-  // ... This function remains unchanged ...
   try {
-    const { userId } = await auth();
+    const { userId } = auth();
+    if (!userId) {
+      // You might want to handle this differently, e.g., return an empty array or throw a more specific error
+      throw new Error("Unauthorized: User ID not found.");
+    }
     await connectDB();
-    const query = userId ? { userId } : {};
+    const query = { userId }; // Directly use userId in the query
     const [images, totalCount] = await Promise.all([
       Image.find(query).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit),
       Image.countDocuments(query),
@@ -89,8 +94,10 @@ export const getUserImagesFromDb = async (page: number = 1, limit: number = 12) 
       currentPage: page,
       totalPages: Math.ceil(totalCount / limit),
     };
-  } catch (err: any) {
-    throw new Error(err.message || "Failed to fetch images");
+  } catch (err: unknown) { // Use 'unknown' for catch block errors
+    console.error("Error in getUserImagesFromDb:", err);
+    const errorMessage = err instanceof Error ? err.message : "Failed to fetch images";
+    throw new Error(errorMessage);
   }
 };
 
@@ -99,15 +106,15 @@ export const getUserImagesFromDb = async (page: number = 1, limit: number = 12) 
  * Get all images from DB
  */
 export const getAllImagesFromDb = async () => {
-    // ... This function also remains unchanged ...
     try {
-        const { userId } = await auth();
+        const { userId } = auth();
         if (!userId) throw new Error("User not found");
         await connectDB();
         const images = await Image.find({ userId }).sort({ createdAt: -1 });
         return JSON.parse(JSON.stringify(images));
-    } catch (err: any) {
-        console.error("Error in getAllImagesFromDb:", err.message);
-        throw new Error(err.message || "Failed to fetch images");
+    } catch (err: unknown) { // Use 'unknown' for catch block errors
+        console.error("Error in getAllImagesFromDb:", err);
+        const errorMessage = err instanceof Error ? err.message : "Failed to fetch images";
+        throw new Error(errorMessage);
     }
 };
