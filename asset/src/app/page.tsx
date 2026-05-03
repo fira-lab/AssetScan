@@ -36,7 +36,7 @@ import React, { useEffect, useState, useRef } from "react";
 
 // Component Imports
 import Loader from "./Loader/page";
-import { useLanguageStore } from "./LanguageStore/languageStore";
+// import { useLanguageStore } from "./LanguageStore/languageStore";
 import HeroSection from "./HeroSection/page";
 import SystemOverview from "./SystemOverview/page";
 import StatsSection from "./StatsSection/page";
@@ -56,9 +56,9 @@ interface TranslationItem {
   default?: string;
 }
 
-interface Translations {
-  [key: string]: TranslationItem;
-}
+// interface Translations {
+//   [key: string]: TranslationItem;
+// }
 // const translations: Translations = {
 //   descYoungMissionariesPraying1: {
 //     en: "Newly recruited medical doctors dedicated to serving the community's health needs.",
@@ -601,7 +601,7 @@ interface Translations {
 //     { src: Alemgena55, descKey: "descSunsetWorshipNewBelievers" },
 //   ],
 // };
-type LanguageCode = "en" | "am" | "oro" | "kor" | "chn";
+// type LanguageCode = "en" | "am" | "oro" | "kor" | "chn";
 // const validLanguageCodes: LanguageCode[] = ["en", "am", "oro", "kor", "chn"];
 
 export default function HomePage() {
