@@ -1,17 +1,14 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Loader from "../Loader/page";
-import OverviewCardsGroup from "./OverCard/page";
 import AnnouncementsPage from "./Announcment/page";
-import MissionsPage from "./Mission/page";
 import SubscribedUsers from "./Subscribe/page";
-import DonateUsers from "./Donate/page";
 import UserInfo from "@/components/Tables/UserInfo/page";
 import ContactInfo from "@/components/Tables/ContactInfo/page";
-import { useColorMode } from "@/components/ui/color-mode";
 import QRCodeGenerator from "@/components/Tables/qr_code_generator/page";
+import { useColorMode } from "@/components/ui/color-mode";
 
 type PropsType = {
   searchParams: Promise<{
@@ -46,25 +43,21 @@ export default function Home({ searchParams }: PropsType) {
       }`}
     >
       <main className="container mx-auto p-4 md:p-6 xl:p-1 space-y-8">
-        {/* Overview Section */}
-        {/* <Suspense
-          fallback={
-            <div className="text-center text-gray-500 dark:text-gray-400 animate-pulse">
-              Loading Dashboard...
-            </div>
-          }
-        >
+        {/* Overview Section - Commented Out */}
+        {/* 
+        <Suspense fallback={<div>Loading Dashboard...</div>}>
           <OverviewCardsGroup />
-        </Suspense> */}
+        </Suspense> 
+        */}
 
         {/* Dashboard Cards Grid */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2">
+          {/* Announcements */}
           <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent group-hover:from-blue-500/20 transition-all duration-300"></div>
             <CardHeader>
               <CardTitle className="flex items-center gap-3 text-lg font-semibold text-blue-600 dark:text-blue-300">
-                <span className="text-2xl animate-pulse">📢</span> Latest
-                Announcements
+                <span className="text-2xl animate-pulse">📢</span> Latest Announcements
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -72,12 +65,12 @@ export default function Home({ searchParams }: PropsType) {
             </CardContent>
           </Card>
 
+          {/* Active Subscribers */}
           <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none">
             <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-transparent group-hover:from-green-500/20 transition-all duration-300"></div>
             <CardHeader>
               <CardTitle className="flex items-center gap-3 text-lg font-semibold text-green-600 dark:text-green-300">
-                <span className="text-2xl animate-pulse">📬</span> Active
-                Subscribers
+                <span className="text-2xl animate-pulse">📬</span> Active Subscribers
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -85,24 +78,25 @@ export default function Home({ searchParams }: PropsType) {
             </CardContent>
           </Card>
 
+          {/* User Management */}
           <Card className="sm:col-span-2 lg:col-span-3 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-transparent group-hover:from-purple-500/20 transition-all duration-300"></div>
             <CardHeader>
               <CardTitle className="flex items-center gap-3 text-lg font-semibold text-purple-600 dark:text-purple-300">
-                <span className="text-2xl animate-pulse">🧑‍💻</span> User
-                Management
+                <span className="text-2xl animate-pulse">🧑‍💻</span> User Management
               </CardTitle>
             </CardHeader>
             <CardContent>
               <UserInfo />
             </CardContent>
           </Card>
+
+          {/* QR Code Generator */}
           <Card className="sm:col-span-2 lg:col-span-3 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-transparent group-hover:from-purple-500/20 transition-all duration-300"></div>
             <CardHeader>
               <CardTitle className="flex items-center gap-3 text-lg font-semibold text-purple-600 dark:text-purple-300">
-                <span className="text-2xl animate-pulse">🧑‍💻</span> User
-              Generate Qr Code
+                <span className="text-2xl animate-pulse">📱</span> Generate QR Code
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -110,12 +104,12 @@ export default function Home({ searchParams }: PropsType) {
             </CardContent>
           </Card>
 
+          {/* Contact Records */}
           <Card className="sm:col-span-2 lg:col-span-3 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none">
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-transparent group-hover:from-indigo-500/20 transition-all duration-300"></div>
             <CardHeader>
               <CardTitle className="flex items-center gap-3 text-lg font-semibold text-indigo-600 dark:text-indigo-300">
-                <span className="text-2xl animate-pulse">📇</span> Contact
-                Records
+                <span className="text-2xl animate-pulse">📇</span> Contact Records
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -123,31 +117,20 @@ export default function Home({ searchParams }: PropsType) {
             </CardContent>
           </Card>
 
-          {/* <Card className="sm:col-span-2 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none">
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-transparent group-hover:from-orange-500/20 transition-all duration-300"></div>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3 text-lg font-semibold text-orange-600 dark:text-orange-300">
-                <span className="text-2xl animate-pulse">🎯</span> Mission
-                Progress
-              </CardTitle>
-            </CardHeader>
+          {/* Commented Sections - Ready to uncomment when needed */}
+          {/* 
+          <Card className="sm:col-span-2 relative overflow-hidden ...">
             <CardContent>
               <MissionsPage />
             </CardContent>
-          </Card> */}
+          </Card>
 
-          {/* <Card className="sm:col-span-2 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none">
-            <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-transparent group-hover:from-red-500/20 transition-all duration-300"></div>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3 text-lg font-semibold text-red-600 dark:text-red-300">
-                <span className="text-2xl animate-pulse">💰</span> Donation
-                Overview
-              </CardTitle>
-            </CardHeader>
+          <Card className="sm:col-span-2 relative overflow-hidden ...">
             <CardContent>
               <DonateUsers />
             </CardContent>
-          </Card> */}
+          </Card>
+          */}
         </div>
       </main>
     </div>
