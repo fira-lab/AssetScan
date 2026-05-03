@@ -6,7 +6,6 @@ import ColorMode from "../ColorMode/page";
 import { useState } from "react";
 import Link from "next/link";
 import Language from "../Language/page";
-import Omm from "../Images/Omm.png";
 import Image from "next/image";
 
 import { GiHamburgerMenu } from "react-icons/gi";
@@ -17,24 +16,21 @@ import { usePathname } from "next/navigation";
 import LoginGif from "./Login.gif";
 import { useLanguageStore } from "../LanguageStore/languageStore";
 
-// ***** FIX 1: Define type for language codes *****
 type LanguageCode = "en" | "am" | "kor" | "oro" | "chn";
 
 const Navbar = () => {
   const { colorMode } = useColorMode();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { selectedLanguage } = useLanguageStore();
-  const pathname = usePathname(); // Can return string | null
+  const pathname = usePathname();
 
-  // ***** FIX 2: Check if pathname is not null before using startsWith *****
   const isAdminSubPage = pathname ? pathname.startsWith("/adminSub") : false;
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
 
-  // --- Translations remain unchanged ---
   const translations = {
-    home: { en: "Home", am: "ቤት", kor: "홈", oro: "Mana", chn: "首页" }, // Added 'kor' back
+    home: { en: "Home", am: "ቤት", kor: "홈", oro: "Mana", chn: "首页" },
     about: {
       en: "About",
       am: "ስለ እኛ",
@@ -50,12 +46,12 @@ const Navbar = () => {
       chn: "近期宣教",
     },
     contact: {
-  "en": "VerifyAsset",
-  "am": "ንብረትን ያረጋግጡ",
-  "kor": "자산 확인",
-  "oro": "Qabeenya Mirkaneessi",
-  "chn": "验证资产"
-},
+      en: "VerifyAsset",
+      am: "ንብረትን ያረጋግጡ",
+      kor: "자산 확인",
+      oro: "Qabeenya Mirkaneessi",
+      chn: "验证资产"
+    },
     donate: {
       en: "Donate",
       am: "ልገሳ",
@@ -78,18 +74,15 @@ const Navbar = () => {
       chn: "关闭菜单",
     },
   };
-  // ---------------------------------------
 
-  // ***** FIX 3: Ensure currentLang uses the LanguageCode type *****
   const currentLang: LanguageCode = (
-    ["en", "am", "kor", "oro", "chn"].includes(selectedLanguage?.value)
-      ? selectedLanguage.value
+    ["en", "am", "kor", "oro", "chn"].includes(selectedLanguage?.value || "")
+      ? (selectedLanguage.value as LanguageCode)
       : "en"
-  ) as LanguageCode;
+  );
 
   const navbarHeight = "72px";
 
-  // --- The rest of the JSX remains completely unchanged ---
   return (
     <>
       <Box
@@ -115,13 +108,18 @@ const Navbar = () => {
           height="100%"
         >
           <Flex align="center" gap={3}>
-            {/* <Image
+            {/* Uncomment when you want to use the logo */}
+            {/* 
+            <Image
               src={Omm}
               alt="GOMM Logo"
               width={50}
               height={35}
               style={{ objectFit: "contain" }}
-            /> */}
+              priority
+            /> 
+            */}
+
             <Text
               fontSize={{ base: "lg", md: "xl" }}
               fontWeight="bold"
@@ -148,39 +146,7 @@ const Navbar = () => {
                 {translations.home[currentLang]}
               </Button>
             </Link>
-            {/* <Link href="/About">
-              <Button
-                variant="ghost"
-                color="mediumslateblue"
-                fontWeight="medium"
-                px={3}
-                _hover={{ bg: colorMode === "light" ? "teal.50" : "teal.800" }}
-              >
-                {translations.about[currentLang]}
-              </Button>
-            </Link> */}
-            {/* <Link href="/RecentMissions">
-              <Button
-                variant="ghost"
-                color="mediumslateblue"
-                fontWeight="medium"
-                px={3}
-                _hover={{ bg: colorMode === "light" ? "teal.50" : "teal.800" }}
-              >
-                {translations.recentMissions[currentLang]}
-              </Button>
-            </Link> */}
-            {/* <Link href="/Contact">
-              <Button
-                variant="ghost"
-                color="mediumslateblue"
-                fontWeight="medium"
-                px={3}
-                _hover={{ bg: colorMode === "light" ? "teal.50" : "teal.800" }}
-              >
-                {translations.contact[currentLang]}
-              </Button>
-            </Link> */}
+
             <Link href="/Contact">
               <Button
                 color="white"
@@ -195,8 +161,10 @@ const Navbar = () => {
                 {translations.contact[currentLang]}
               </Button>
             </Link>
+
             <ColorMode />
             <Language />
+
             {isAdminSubPage && (
               <>
                 <SignedOut>
@@ -226,6 +194,7 @@ const Navbar = () => {
           >
             <Language />
             <ColorMode />
+
             {isAdminSubPage && (
               <>
                 <SignedOut>
@@ -246,6 +215,7 @@ const Navbar = () => {
                 </SignedIn>
               </>
             )}
+
             <Button
               onClick={toggleMenu}
               variant="ghost"
@@ -263,6 +233,7 @@ const Navbar = () => {
           </HStack>
         </Flex>
 
+        {/* Mobile Menu */}
         {isMenuOpen && (
           <Box
             bg={colorMode === "light" ? "white" : "gray.900"}
@@ -289,28 +260,7 @@ const Navbar = () => {
                   {translations.home[currentLang]}
                 </Button>
               </Link>
-              <Link href="/About" passHref>
-                <Button
-                  variant="ghost"
-                  color="mediumslateblue"
-                  w="full"
-                  justifyContent="flex-start"
-                  onClick={closeMenu}
-                >
-                  {translations.about[currentLang]}
-                </Button>
-              </Link>
-              <Link href="/RecentMissions" passHref>
-                <Button
-                  variant="ghost"
-                  color="mediumslateblue"
-                  w="full"
-                  justifyContent="flex-start"
-                  onClick={closeMenu}
-                >
-                  {translations.recentMissions[currentLang]}
-                </Button>
-              </Link>
+
               <Link href="/Contact" passHref>
                 <Button
                   variant="ghost"
@@ -322,6 +272,7 @@ const Navbar = () => {
                   {translations.contact[currentLang]}
                 </Button>
               </Link>
+
               <Link href="/Donate" passHref>
                 <Button
                   variant="solid"
