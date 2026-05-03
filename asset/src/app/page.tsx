@@ -5,7 +5,7 @@ import React, { useEffect, useState, useRef } from "react";
 // OmmHome is still imported, but if genuinely unused, remove it.
 // For now, let's assume it *might* be used in a child component, or is a leftover.
 // To satisfy the linter if it's truly unused *here*, you'd remove it.
-import OmmHome from "./Images/AssetScan.png";
+
 import mm1 from "./Images/mm1.jpg";
 import mm3 from "./Images/mm3.png";
 import omm4 from "./Images/omm4.jpg";
@@ -563,44 +563,44 @@ const translations: Translations = {
 // To avoid 'missionImageData' being unused, you would typically pass it
 // as a prop to a component that renders mission images, or use it directly in JSX.
 // For now, I'm adding a comment to acknowledge its intended use.
-const missionImageData = {
-  medical2025: [
-    { src: omm6, descKey: "descYoungMissionariesPraying1" },
-    { src: omm4, descKey: "descOneOnOneEvangelism1" },
-    { src: mm3, descKey: "descTeamWorshipSession1" },
-    { src: omm5, descKey: "descLocalChildrenJoinOutreach1" },
-    { src: omm7, descKey: "descMissionariesShareFood1" },
-    { src: omm8, descKey: "descBoleMKCOrganizesCeremony1" },
-    { src: mm1, descKey: "descGroupPhotoCelebrating1" },
-  ],
-  jimma2007: [
-    { src: Jimma1, descKey: "descFirstEvangelismTeam" },
-    { src: Jimma2, descKey: "descStudentsPrayDuringMission" },
-    { src: Jimma3, descKey: "descTakleAndTakluLead" },
-    { src: Jimma4, descKey: "descCrowdGatheredForGospel" },
-    { src: Jimma5, descKey: "descEarlyConvertsRaiseHands" },
-    { src: Jimma6, descKey: "descTeamTrainingSession" },
-    { src: Jimma7, descKey: "descFoundingMembersCelebrate" },
-  ],
-  summer2024: [
-    { src: Bishoftu1111, descKey: "descYoungMissionariesPraying" },
-    { src: Summer2, descKey: "descOneOnOneEvangelism" },
-    { src: bishoftuPeople, descKey: "descTeamWorshipSession" },
-    { src: Summer2024, descKey: "descLocalChildrenJoinOutreach" },
-    { src: BishoftuCrew, descKey: "descMissionariesShareFood" },
-    { src: Bishoftu2, descKey: "descBoleMKCOrganizesCeremony" },
-    { src: Bishoftu3, descKey: "descGroupPhotoCelebrating" },
-  ],
+// const missionImageData = {
+//   medical2025: [
+//     { src: omm6, descKey: "descYoungMissionariesPraying1" },
+//     { src: omm4, descKey: "descOneOnOneEvangelism1" },
+//     { src: mm3, descKey: "descTeamWorshipSession1" },
+//     { src: omm5, descKey: "descLocalChildrenJoinOutreach1" },
+//     { src: omm7, descKey: "descMissionariesShareFood1" },
+//     { src: omm8, descKey: "descBoleMKCOrganizesCeremony1" },
+//     { src: mm1, descKey: "descGroupPhotoCelebrating1" },
+//   ],
+//   jimma2007: [
+//     { src: Jimma1, descKey: "descFirstEvangelismTeam" },
+//     { src: Jimma2, descKey: "descStudentsPrayDuringMission" },
+//     { src: Jimma3, descKey: "descTakleAndTakluLead" },
+//     { src: Jimma4, descKey: "descCrowdGatheredForGospel" },
+//     { src: Jimma5, descKey: "descEarlyConvertsRaiseHands" },
+//     { src: Jimma6, descKey: "descTeamTrainingSession" },
+//     { src: Jimma7, descKey: "descFoundingMembersCelebrate" },
+//   ],
+//   summer2024: [
+//     { src: Bishoftu1111, descKey: "descYoungMissionariesPraying" },
+//     { src: Summer2, descKey: "descOneOnOneEvangelism" },
+//     { src: bishoftuPeople, descKey: "descTeamWorshipSession" },
+//     { src: Summer2024, descKey: "descLocalChildrenJoinOutreach" },
+//     { src: BishoftuCrew, descKey: "descMissionariesShareFood" },
+//     { src: Bishoftu2, descKey: "descBoleMKCOrganizesCeremony" },
+//     { src: Bishoftu3, descKey: "descGroupPhotoCelebrating" },
+//   ],
 
-  alemgena2023: [
-    { src: Alemgena, descKey: "descMissionarySharesGospel" },
-    { src: Alemgena11, descKey: "descFeedingThePoor" },
-    { src: Alemgena22, descKey: "descChildrenListenToBible" },
-    { src: Alemgena33, descKey: "descSoulAcceptsChrist" },
-    { src: Alemgena44, descKey: "descTeamWalksThroughRural" },
-    { src: Alemgena55, descKey: "descSunsetWorshipNewBelievers" },
-  ],
-};
+//   alemgena2023: [
+//     { src: Alemgena, descKey: "descMissionarySharesGospel" },
+//     { src: Alemgena11, descKey: "descFeedingThePoor" },
+//     { src: Alemgena22, descKey: "descChildrenListenToBible" },
+//     { src: Alemgena33, descKey: "descSoulAcceptsChrist" },
+//     { src: Alemgena44, descKey: "descTeamWalksThroughRural" },
+//     { src: Alemgena55, descKey: "descSunsetWorshipNewBelievers" },
+//   ],
+// };
 type LanguageCode = "en" | "am" | "oro" | "kor" | "chn";
 const validLanguageCodes: LanguageCode[] = ["en", "am", "oro", "kor", "chn"];
 
@@ -623,24 +623,24 @@ export default function HomePage() {
   // Let's assume for now it's meant to be used for something *within* this component if needed,
   // or that child components handle their own translations.
   // If it's *never* used here, it should be removed. For now, I'll keep it as it demonstrates the translation logic.
-  const getText = (key: string): string => {
-    const potentialLang = selectedLanguage?.value || "en";
+  // const getText = (key: string): string => {
+  //   const potentialLang = selectedLanguage?.value || "en";
 
-    const lang: LanguageCode = validLanguageCodes.includes(
-      potentialLang as LanguageCode
-    )
-      ? (potentialLang as LanguageCode)
-      : "en";
+  //   const lang: LanguageCode = validLanguageCodes.includes(
+  //     potentialLang as LanguageCode
+  //   )
+  //     ? (potentialLang as LanguageCode)
+  //     : "en";
 
-    const item = translations[key];
+  //   const item = translations[key];
 
-    if (!item) {
-      console.warn(`Translation key "${key}" not found.`);
-      return "";
-    }
+  //   if (!item) {
+  //     console.warn(`Translation key "${key}" not found.`);
+  //     return "";
+  //   }
 
-    return item[lang] ?? item.en ?? item.default ?? "";
-  };
+  //   return item[lang] ?? item.en ?? item.default ?? "";
+  // };
 
   useEffect(() => {
     const fetchData = async () => {
