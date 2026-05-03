@@ -14,7 +14,7 @@ interface CloudinaryUploadResult {
   width: number;
   height: number;
   format: string;
-  [key: string]: any; // for other possible fields
+  // Add other fields you commonly use if needed
 }
 
 export async function uploadImage(formData: FormData) {
@@ -35,9 +35,13 @@ export async function uploadImage(formData: FormData) {
           resource_type: "image",
         },
         (error, result) => {
-          if (error) reject(error);
-          else if (result) resolve(result);
-          else reject(new Error("Upload failed"));
+          if (error) {
+            reject(error);
+          } else if (result) {
+            resolve(result as CloudinaryUploadResult);
+          } else {
+            reject(new Error("Upload failed - no result"));
+          }
         }
       );
       uploadStream.end(buffer);
