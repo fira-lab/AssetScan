@@ -57,7 +57,7 @@ const HeroSection = () => {
             Register Asset
           </a>
           <a
-            href="#features"
+            href="/Contact"
             className="flex items-center gap-2 border-2 border-primary-foreground/60 text-primary-foreground px-8 py-3.5 rounded-lg font-heading font-bold text-lg hover:bg-primary-foreground/10 transition-all"
           >
             <ShieldCheck className="h-5 w-5" />

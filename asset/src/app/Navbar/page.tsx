@@ -46,7 +46,7 @@ const Navbar = () => {
       chn: "近期宣教",
     },
     contact: {
-      en: "VerifyAsset",
+      en: "Login",
       am: "ንብረትን ያረጋግጡ",
       kor: "자산 확인",
       oro: "Qabeenya Mirkaneessi",
