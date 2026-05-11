@@ -9,7 +9,7 @@ import UserInfo from "@/components/Tables/UserInfo/page";
 import ContactInfo from "@/components/Tables/ContactInfo/page";
 import QRCodeGenerator from "@/components/Tables/qr_code_generator/page";
 import { useColorMode } from "@/components/ui/color-mode";
-import ManageUsersPage from "@/components/Tables/GateKeeper/page";
+
 import ManageGatekeepersPage from "@/components/Tables/GateKeeper/page";
 
 type PropsType = {
