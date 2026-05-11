@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image"; // Import Next.js Image
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import {
@@ -81,15 +82,14 @@ export default function GateKeeperPage() {
       timestamp: new Date().toISOString(),
       action: direction,
       status: "Approved",
-      performedBy: "Gatekeeper",  // matches your schema default
+      performedBy: "Gatekeeper",
     };
 
-    const identifier = contact.email; // using email (owner ID) as the matching key
+    const identifier = contact.email;
 
     setLoading(true);
 
     try {
-      // Step 1: Try to update existing user
       let response = await fetch("/api/users/users", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -109,7 +109,6 @@ export default function GateKeeperPage() {
         return;
       }
 
-      // Step 2: If not found (404) → create new user with initial history
       if (response.status === 404) {
         const createPayload = {
           name: contact.name,
@@ -118,11 +117,10 @@ export default function GateKeeperPage() {
           serial: contact.serial,
           message: contact.message,
           location: contact.location,
-          // optional defaults
           gender: "Other",
           status: "Active",
           address: "",
-          history: [newEntry], // start with this entry
+          history: [newEntry],
         };
 
         response = await fetch("/api/users/users", {
@@ -142,14 +140,15 @@ export default function GateKeeperPage() {
         }
       }
 
-      // If still failed
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.error || `HTTP ${response.status}`);
-    } catch (err: any) {
+    } catch (err) {
+      // FIX: Check if err is an instance of Error to avoid 'any'
+      const errorMessage = err instanceof Error ? err.message : "Could not save gate log";
       console.error("Approve error:", err);
       toast({
         title: "Write failed",
-        description: err.message || "Could not save gate log",
+        description: errorMessage,
         status: "error",
         duration: 7000,
       });
@@ -182,7 +181,6 @@ export default function GateKeeperPage() {
         </CardHeader>
 
         <CardContent className="space-y-10">
-          {/* SCAN */}
           <div className="flex flex-col sm:flex-row gap-4 max-w-4xl mx-auto">
             <Input
               placeholder="Scan or enter Serial No / Owner ID (e.g. SN 09824 | NSR/868/14)"
@@ -201,19 +199,19 @@ export default function GateKeeperPage() {
             </Button>
           </div>
 
-          {/* RESULT */}
           {contact && (
             <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-gray-950 p-6 md:p-10 shadow-lg max-w-5xl mx-auto">
               <div className="flex flex-col md:flex-row gap-10 items-start">
                 {contact.imageUrl && (
-                  <img
-                    src={contact.imageUrl}
-                    alt={contact.name}
-                    className="w-56 h-56 object-cover rounded-2xl border-4 border-emerald-500 shadow-xl flex-shrink-0"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = "https://via.placeholder.com/224?text=No+Photo";
-                    }}
-                  />
+                  <div className="relative w-56 h-56 flex-shrink-0">
+                    <Image
+                      src={contact.imageUrl}
+                      alt={contact.name}
+                      fill
+                      className="object-cover rounded-2xl border-4 border-emerald-500 shadow-xl"
+                      unoptimized // Use this if your images are from an external source like a blob/placeholder
+                    />
+                  </div>
                 )}
 
                 <div className="flex-1 space-y-6">

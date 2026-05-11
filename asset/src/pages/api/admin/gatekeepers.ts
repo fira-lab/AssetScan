@@ -4,6 +4,31 @@ import { getAuth } from "@clerk/nextjs/server";
 import connectDB from "@/types/db";
 import GateKeeper from "@/models/GateKeeper";
 
+// ────────────────────────────────────────────────
+// Types for Clerk API Responses
+// ────────────────────────────────────────────────
+interface ClerkUser {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  profile_image_url: string;
+  created_at: number;
+  last_sign_in_at: number | null;
+  public_metadata: {
+    role?: string;
+  };
+  email_addresses: Array<{
+    email_address: string;
+  }>;
+}
+
+interface IGateKeeperDoc {
+  _id: string;
+  clerkUserId?: string;
+  name?: string;
+  message?: string;
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { userId: adminUserId } = getAuth(req);
 
@@ -21,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!adminRes.ok) return res.status(500).json({ error: "Failed to verify admin" });
 
-    const adminUser = await adminRes.json();
+    const adminUser: ClerkUser = await adminRes.json();
 
     if (adminUser.public_metadata?.role !== "admin") {
       return res.status(403).json({ error: "Access denied: Admin only" });
@@ -35,17 +60,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       if (!usersRes.ok) return res.status(500).json({ error: "Failed to fetch users from Clerk" });
 
-      const allClerkUsers: any[] = await usersRes.json();
+      const allClerkUsers: ClerkUser[] = await usersRes.json();
 
-      const privilegedUsers = allClerkUsers.filter((u: any) => {
+      const privilegedUsers = allClerkUsers.filter((u) => {
         const role = u.public_metadata?.role;
         return role === "admin" || role === "gatekeeper";
       });
 
-      const dbGateKeepers = await GateKeeper.find().lean();
+      // Cast the DB result to our interface
+      const dbGateKeepers = await GateKeeper.find().lean() as unknown as IGateKeeperDoc[];
 
-      const result = privilegedUsers.map((clerkUser: any) => {
-        const gatekeeperDoc = dbGateKeepers.find((g: any) => g.clerkUserId === clerkUser.id);
+      const result = privilegedUsers.map((clerkUser) => {
+        const gatekeeperDoc = dbGateKeepers.find((g) => g.clerkUserId === clerkUser.id);
         return {
           id: clerkUser.id,
           email: clerkUser.email_addresses?.[0]?.email_address || "N/A",
@@ -95,7 +121,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const invitation = await inviteRes.json();
 
-      // Always create GateKeeper record (fixed bug)
       await GateKeeper.create({
         clerkUserId: invitation.user_id || null,
         name: `${firstName} ${lastName}`.trim(),
@@ -159,7 +184,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       if (!deleteRes.ok) return res.status(500).json({ error: "Failed to delete user from Clerk" });
 
-      // Optional: Delete from local DB
       await GateKeeper.deleteOne({ clerkUserId: userId });
 
       return res.status(200).json({ success: true });
@@ -168,11 +192,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.setHeader("Allow", ["GET", "POST", "PATCH", "DELETE"]);
     return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
 
-  } catch (error: any) {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Internal server error";
     console.error("Error in /api/admin/gatekeepers:", error);
     return res.status(500).json({ 
       error: "Internal server error",
-      details: error.message 
+      details: errorMessage 
     });
   }
 }
