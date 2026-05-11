@@ -40,16 +40,16 @@ import { uploadImage } from "@/app/actions/Image";
 interface ContactUser {
   _id: string;
   name: string;
-  email: string;           // AMU_ID / owner identifier
+  email: string;
   serial?: string;
   phone?: string;
   location?: string;
-  message: string;         // asset description
+  message: string;
   imageUrl?: string;
 }
 
 interface HistoryEntry {
-  timestamp: string;       // ISO string
+  timestamp: string;
   action: string;
   status: string;
   performedBy: string;
@@ -57,7 +57,7 @@ interface HistoryEntry {
 }
 
 interface UserStatus {
-  email: string; // Fixed: replaced 'any' with 'string'
+  email: string; // Fixed: Specify string instead of any
   _id: string;
   status: string;
   history: HistoryEntry[];
@@ -112,7 +112,7 @@ export default function ContactInfo() {
   const pageSize = 10;
 
   // ────────────────────────────────────────────────
-  // Load & merge data - Wrapped in useCallback to fix dependency error
+  // Load & merge data
   // ────────────────────────────────────────────────
   const fetchAndMerge = useCallback(async () => {
     try {
@@ -204,7 +204,7 @@ export default function ContactInfo() {
       setNewForm({ name: "", email: "", serial: "", phone: "", location: "", message: "" });
       setImageFile(null);
       toast({ title: "Added successfully", status: "success" });
-    } catch (_err) { // Fixed: added underscore to indicate unused var
+    } catch { // Removed (err) entirely to satisfy strict linter
       toast({ title: "Add failed", status: "error" });
     } finally {
       setUploading(false);
@@ -234,7 +234,7 @@ export default function ContactInfo() {
       setIsEditOpen(false);
       setImageFile(null);
       toast({ title: "Updated successfully", status: "success" });
-    } catch (_err) { // Fixed: added underscore to indicate unused var
+    } catch { // Removed (err) entirely to satisfy strict linter
       toast({ title: "Update failed", status: "error" });
     } finally {
       setUploading(false);
@@ -249,7 +249,7 @@ export default function ContactInfo() {
       await refresh();
       setIsDeleteOpen(false);
       toast({ title: "Deleted successfully", status: "success" });
-    } catch (_err) { // Fixed: added underscore to indicate unused var
+    } catch { // Removed (err) entirely to satisfy strict linter
       toast({ title: "Delete failed", status: "error" });
     }
   };
@@ -434,7 +434,7 @@ export default function ContactInfo() {
           </Pagination>
         )}
 
-        {/* ─── Edit Dialog ─── */}
+        {/* Edit Dialog */}
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
           <DialogContent className="bg-white dark:bg-gray-800">
             <DialogHeader><DialogTitle>Edit</DialogTitle></DialogHeader>
@@ -461,7 +461,7 @@ export default function ContactInfo() {
           </DialogContent>
         </Dialog>
 
-        {/* ─── Delete Confirm ─── */}
+        {/* Delete Confirm */}
         <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
           <DialogContent className="bg-white dark:bg-gray-800">
             <DialogHeader><DialogTitle>Delete?</DialogTitle></DialogHeader>
@@ -473,7 +473,7 @@ export default function ContactInfo() {
           </DialogContent>
         </Dialog>
 
-        {/* ─── QR Dialog ─── */}
+        {/* QR Dialog */}
         <Dialog open={isQrOpen} onOpenChange={setIsQrOpen}>
           <DialogContent className="bg-white dark:bg-gray-800 flex flex-col items-center">
             <DialogHeader><DialogTitle>QR: {selectedNameForQr}</DialogTitle></DialogHeader>
@@ -486,7 +486,7 @@ export default function ContactInfo() {
           </DialogContent>
         </Dialog>
 
-        {/* ─── History Dialog ─── */}
+        {/* History Dialog */}
         <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
           <DialogContent className="max-w-3xl bg-white dark:bg-gray-800">
             <DialogHeader>
