@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, useCallback } from "react";
 import Image from "next/image";
 import { QRCodeCanvas } from "qrcode.react";
 import { formatDistanceToNow, parseISO } from "date-fns";
@@ -57,11 +57,10 @@ interface HistoryEntry {
 }
 
 interface UserStatus {
-  email: any;
+  email: string; // Fixed: replaced 'any' with 'string'
   _id: string;
   status: string;
   history: HistoryEntry[];
-  // you can add lastEntered / lastExited if backend computes them
 }
 
 interface ExtendedUser extends ContactUser {
@@ -113,47 +112,43 @@ export default function ContactInfo() {
   const pageSize = 10;
 
   // ────────────────────────────────────────────────
-  // Load & merge data from BOTH endpoints
+  // Load & merge data - Wrapped in useCallback to fix dependency error
   // ────────────────────────────────────────────────
-  const fetchAndMerge = async () => {
-  try {
-    const profileRes = await fetch("/api/contact/contact");
-    if (!profileRes.ok) throw new Error("profile fetch failed");
-    const profiles: ContactUser[] = await profileRes.json();
+  const fetchAndMerge = useCallback(async () => {
+    try {
+      const profileRes = await fetch("/api/contact/contact");
+      if (!profileRes.ok) throw new Error("profile fetch failed");
+      const profiles: ContactUser[] = await profileRes.json();
 
-    const statusRes = await fetch("/api/users/users");
-    if (!statusRes.ok) throw new Error("status fetch failed");
-    const statusDocs: UserStatus[] = await statusRes.json();
+      const statusRes = await fetch("/api/users/users");
+      if (!statusRes.ok) throw new Error("status fetch failed");
+      const statusDocs: UserStatus[] = await statusRes.json();
 
-    // ─── Use email as key ────────────────────────────────
-    const statusByEmail = new Map<string, UserStatus>();
-    statusDocs.forEach((doc) => {
-      const key = doc.email?.toLowerCase()?.trim();
-      if (key) statusByEmail.set(key, doc);
-    });
+      const statusByEmail = new Map<string, UserStatus>();
+      statusDocs.forEach((doc) => {
+        const key = doc.email?.toLowerCase()?.trim();
+        if (key) statusByEmail.set(key, doc);
+      });
 
-    const merged = profiles.map((p) => {
-      const emailKey = p.email?.toLowerCase()?.trim();
-      return {
-        ...p,
-        statusData: emailKey ? statusByEmail.get(emailKey) : undefined,
-      };
-    });
+      const merged = profiles.map((p) => {
+        const emailKey = p.email?.toLowerCase()?.trim();
+        return {
+          ...p,
+          statusData: emailKey ? statusByEmail.get(emailKey) : undefined,
+        };
+      });
 
-    console.log("Merged count:", merged.length);
-    console.log("With status data:", merged.filter(m => m.statusData).length);
-
-    setUsers(merged);
-    setFilteredUsers(merged);
-  } catch (err) {
-    console.error(err);
-    toast({ title: "Data load failed", status: "error" });
-  }
-};
+      setUsers(merged);
+      setFilteredUsers(merged);
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Data load failed", status: "error" });
+    }
+  }, [toast]);
 
   useEffect(() => {
     fetchAndMerge();
-  }, []);
+  }, [fetchAndMerge]);
 
   const refresh = () => fetchAndMerge();
 
@@ -174,12 +169,12 @@ export default function ContactInfo() {
 
     const act = latest.action.toLowerCase();
     if (act.includes("enter") || act.includes("entering")) return `Entered ${when}`;
-    if (act.includes("exit") || act.includes("exiting"))  return `Exited ${when}`;
+    if (act.includes("exit") || act.includes("exiting"))   return `Exited ${when}`;
     return `${latest.action} ${when}`;
   };
 
   // ────────────────────────────────────────────────
-  // CRUD – only touches /api/contact/contact
+  // CRUD
   // ────────────────────────────────────────────────
   const handleAdd = async () => {
     if (!newForm.name || !newForm.email || !newForm.message) {
@@ -209,7 +204,7 @@ export default function ContactInfo() {
       setNewForm({ name: "", email: "", serial: "", phone: "", location: "", message: "" });
       setImageFile(null);
       toast({ title: "Added successfully", status: "success" });
-    } catch (err) {
+    } catch (_err) { // Fixed: added underscore to indicate unused var
       toast({ title: "Add failed", status: "error" });
     } finally {
       setUploading(false);
@@ -239,7 +234,7 @@ export default function ContactInfo() {
       setIsEditOpen(false);
       setImageFile(null);
       toast({ title: "Updated successfully", status: "success" });
-    } catch (err) {
+    } catch (_err) { // Fixed: added underscore to indicate unused var
       toast({ title: "Update failed", status: "error" });
     } finally {
       setUploading(false);
@@ -254,7 +249,7 @@ export default function ContactInfo() {
       await refresh();
       setIsDeleteOpen(false);
       toast({ title: "Deleted successfully", status: "success" });
-    } catch (err) {
+    } catch (_err) { // Fixed: added underscore to indicate unused var
       toast({ title: "Delete failed", status: "error" });
     }
   };
@@ -305,7 +300,7 @@ export default function ContactInfo() {
   const pageCount = Math.ceil(filteredUsers.length / pageSize);
   const currentPageUsers = filteredUsers.slice(
     (currentPage - 1) * pageSize,
-    currentPage * pageSize
+    (currentPage) * pageSize
   );
 
   return (
@@ -491,7 +486,7 @@ export default function ContactInfo() {
           </DialogContent>
         </Dialog>
 
-        {/* ─── History Dialog (from /api/users/users) ─── */}
+        {/* ─── History Dialog ─── */}
         <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
           <DialogContent className="max-w-3xl bg-white dark:bg-gray-800">
             <DialogHeader>
