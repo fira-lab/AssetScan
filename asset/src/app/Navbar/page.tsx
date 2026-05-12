@@ -24,7 +24,11 @@ const Navbar = () => {
   const { selectedLanguage } = useLanguageStore();
   const pathname = usePathname();
 
-  const isAdminSubPage = pathname ? pathname.startsWith("/adminSub") : false;
+  const protectedPaths = ["/adminSub", "/Contact"];
+
+const isAdminSubPage = pathname 
+  ? protectedPaths.some(path => pathname.startsWith(path)) 
+  : false;
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
