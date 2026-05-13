@@ -70,7 +70,8 @@ export default function GateKeeperPage() {
   const toast = useToast();
 
   // ─── FACE RECOGNITION SETUP ───────────────────────────────
-  const [faceapi, setFaceapi] = useState<typeof import('face-api.js') | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+const [faceapi, setFaceapi] = useState<any>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
 
