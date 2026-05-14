@@ -268,6 +268,8 @@ const isAdminSubPage = pathname
               <Link href="/Contact" passHref>
                 <Button
                   variant="ghost"
+                   
+                  bg="green.400"
                   color="mediumslateblue"
                   w="full"
                   justifyContent="flex-start"
@@ -277,7 +279,7 @@ const isAdminSubPage = pathname
                 </Button>
               </Link>
 
-              <Link href="/Donate" passHref>
+              {/* <Link href="/Donate" passHref>
                 <Button
                   variant="solid"
                   bg="green.400"
@@ -291,7 +293,7 @@ const isAdminSubPage = pathname
                 >
                   {translations.donate[currentLang]}
                 </Button>
-              </Link>
+              </Link> */}
             </Flex>
           </Box>
         )}
