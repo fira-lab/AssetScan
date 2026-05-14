@@ -49,13 +49,13 @@ const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <a
+          {/* <a
             href="#overview"
             className="flex items-center gap-2 bg-accent text-accent-foreground px-8 py-3.5 rounded-lg font-heading font-bold text-lg hover:brightness-110 transition-all shadow-lg"
           >
             <QrCode className="h-5 w-5" />
             Register Asset
-          </a>
+          </a> */}
           <a
             href="/Contact"
             className="flex items-center gap-2 border-2 border-primary-foreground/60 text-primary-foreground px-8 py-3.5 rounded-lg font-heading font-bold text-lg hover:bg-primary-foreground/10 transition-all"
